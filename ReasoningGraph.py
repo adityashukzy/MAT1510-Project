@@ -31,29 +31,45 @@ class ReasoningGraph():
         **model_kwargs
     ):
         temperature = getattr(generation_config, "temperature", 1.0)
-        attention_mask = model_kwargs.get("attention_mask", None)
+        model_kwargs.setdefault("use_cache", True)
 
-        # Get the output logits from the model
-        logits = model(input_ids, **model_kwargs).logits
-        next_token_logits = logits_processor(input_ids, logits[:, -1, :])
+        # Prepare the model inputs
+        model_inputs = model.prepare_inputs_for_generation(input_ids, **model_kwargs)
+
+        # Forward pass
+        outputs = model(**model_inputs, return_dict=True)
+
+        # Update cache and attention mask automatically
+        model_kwargs = model._update_model_kwargs_for_generation(
+            outputs,
+            model_kwargs,
+            is_encoder_decoder=model.config.is_encoder_decoder,
+        )
+
+        # Get logits
+        next_token_logits = outputs.logits[:, -1, :]
+
+        # Process logits
+        next_token_scores = logits_processor(input_ids, next_token_logits)
 
         # Temperature scaling
-        if temperature > 0:
-            next_token_logits = next_token_logits / temperature
+        do_sample = bool(getattr(generation_config, "do_sample", False))
+        if do_sample and temperature > 0:
+            next_token_scores = next_token_scores / temperature
 
             # Sample from the distribution
-            probs = torch.softmax(next_token_logits, dim=-1)
+            probs = torch.softmax(next_token_scores, dim=-1)
             next_tokens = torch.multinomial(probs, num_samples=1)
 
         else:
             # Greedy
-            probs = torch.softmax(next_token_logits, dim=-1)
+            probs = torch.softmax(next_token_scores, dim=-1)
             next_tokens = torch.argmax(probs, dim=-1)[:, None]
 
         # Eval metric
         step_metric = self._calculate_metric(probs)
 
-        return next_tokens, step_metric
+        return next_tokens, step_metric, model_kwargs
     
     # Build the entire reasoning graph. Called in generate
     def reasoning_graph_builder(self, model,
@@ -64,30 +80,37 @@ class ReasoningGraph():
                          generation_config,
                          **model_kwargs
     ):
-        eos_token_id = generation_config.eos_token_id
-        unfinished = torch.ones(input_ids.shape[0], dtype=torch.bool, device=input_ids.device) # Unfinished sequences
-        attention_mask = model_kwargs.get("attention_mask", None)
+        # zeroing all of the calculated metrics
+        self.zero_metrics()
+
+        # Set max length
+        max_len = getattr(generation_config, "max_length", None)
+        if max_len is None:
+            max_new = getattr(generation_config, "max_new_tokens", None)
+            if max_new is None:
+                max_new = 256
+            max_len = input_ids.shape[1] + max_new
+
+        # Extracting all of the correct values
+        model_kwargs = model._get_initial_cache_position(input_ids.shape[1], input_ids.device, model_kwargs)
 
         # First pass 
         with torch.no_grad():
-            while input_ids.shape[1] < stopping_criteria[0].max_length:
-                # Generate the next token
-                next_tokens, step_metric = self._single_token_gen(model, input_ids, logits_processor, generation_config, **model_kwargs)
+            while input_ids.shape[1] < max_len:
+                # Single token gen
+                next_tokens, step_metric, model_kwargs = self._single_token_gen(model, 
+                                                                    input_ids, 
+                                                                    logits_processor, 
+                                                                    generation_config,
+                                                                    **model_kwargs)
+                
                 self.metrics.append(step_metric)
 
-                # Determine what sequences are 
-                if eos_token_id is not None:
-                    next_tokens = next_tokens * unfinished[:, None] + (
-                        (1 - unfinished[:, None].long()) * generation_config.pad_token_id
-                    )
-                    unfinished = unfinished & (next_tokens.squeeze(-1) != eos_token_id)
+                # Append token
+                input_ids = torch.cat([input_ids, next_tokens], dim=-1)
 
-                # Producing the output
-                input_ids = torch.cat((input_ids, next_tokens), dim=-1)
-                attention_mask = torch.cat((attention_mask, torch.ones_like(next_tokens)), dim=-1)
-
-                # Stopping critera
-                if not unfinished.any():
+                # Stop condition
+                if stopping_criteria(input_ids, None):
                     break
         
         return input_ids
