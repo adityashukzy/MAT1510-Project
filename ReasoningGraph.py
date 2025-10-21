@@ -71,18 +71,8 @@ class ReasoningGraph():
 
         return next_tokens, step_metric, model_kwargs
     
-    # Build the entire reasoning graph. Called in generate
-    def reasoning_graph_builder(self, model,
-                         input_ids,
-                         *,
-                         logits_processor,
-                         stopping_criteria,
-                         generation_config,
-                         **model_kwargs
-    ):
-        # zeroing all of the calculated metrics
-        self.zero_metrics()
-
+    # Determine max tokens for generation
+    def _max_tokens(self, input_ids, generation_config):
         # Set max length
         max_len = getattr(generation_config, "max_length", None)
         if max_len is None:
@@ -91,6 +81,10 @@ class ReasoningGraph():
                 max_new = 256
             max_len = input_ids.shape[1] + max_new
 
+        return max_len
+    
+    # Making the first pass and collecting the metrics
+    def _first_pass_gen(self, model, input_ids, logits_processor, stopping_criteria, generation_config, max_len, **model_kwargs):
         # Extracting all of the correct values
         model_kwargs = model._get_initial_cache_position(input_ids.shape[1], input_ids.device, model_kwargs)
 
@@ -114,3 +108,23 @@ class ReasoningGraph():
                     break
         
         return input_ids
+    
+    # Build the entire reasoning graph. Called in generate
+    def reasoning_graph_builder(self, model,
+                         input_ids,
+                         *,
+                         logits_processor,
+                         stopping_criteria,
+                         generation_config,
+                         **model_kwargs
+    ):
+        # zeroing all of the calculated metrics
+        self.zero_metrics()
+
+        # Find max length
+        max_len = self._max_tokens(input_ids, generation_config)
+
+        # First pass storing metrics. Return the first reasoning
+        output_ids = self._first_pass_gen(model, input_ids, logits_processor, stopping_criteria, generation_config, max_len, **model_kwargs)
+        
+        return output_ids
