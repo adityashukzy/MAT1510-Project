@@ -163,8 +163,10 @@ class ReasoningGraph():
                          generation_config,
                          **model_kwargs
     ):
-        # zeroing all of the calculated metrics
+        # zeroing all of the calculated metrics. Restarting the graphs
         self.zero_metrics()
+        self.cur_node = None
+        self.head_node = None 
 
         # Find max length and starting input length
         max_len = self._max_tokens(input_ids, generation_config)
