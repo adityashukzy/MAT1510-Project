@@ -1,9 +1,15 @@
 import torch
+from GraphNode import GraphNode
 
 class ReasoningGraph():
-    def __init__(self, metric_type='entropy'):
+    def __init__(self, metric_type='entropy', branch_percent=0.2, branch_children=2):
         self.metric_type = metric_type
         self.metrics = []
+        self.branch_percent = branch_percent
+        self.branch_children = branch_children
+        self.node_cutoff = float('inf') # So none will be above this
+        self.cur_node = None
+        self.head_node = None
 
     # Clear all of the saved metrics
     def zero_metrics(self):
@@ -83,6 +89,44 @@ class ReasoningGraph():
 
         return max_len
     
+    # Determines the value to separate reasoning and non reasoning tokens
+    def _find_node_cutoff(self):
+        sorted_metrics = sorted(self.metrics, reverse=True)
+        wanted_idx = int(self.branch_percent * len(sorted_metrics)) - 1
+        wanted_idx = max(0, min(wanted_idx, len(sorted_metrics) - 1))
+
+        # Preventing 0 entropy at cutoff
+        while sorted_metrics[wanted_idx] <= 0:
+            wanted_idx -= 1
+
+        self.node_cutoff = sorted_metrics[wanted_idx]
+        
+    # Turns the nodes into the first graph
+    def _first_pass_into_graph(self, output_ids, start_len):
+        token_dist = 0
+        gen_ids = output_ids[0][start_len:]
+
+        for i, metric in enumerate(self.metrics):
+            # Forking token
+            if metric >= self.node_cutoff:
+                tmp_node = GraphNode(gen_ids[i].item())
+
+                # Adding the new node
+                if self.cur_node is None:
+                    self.head_node = tmp_node
+                else:
+                    self.cur_node.add_child(tmp_node, token_dist)
+                    tmp_node.add_parent(self.cur_node, token_dist)
+                
+                self.cur_node = tmp_node
+                token_dist = 0
+            else:
+                token_dist += 1
+
+    # Print the graph
+    def print_reasoning_graph(self):
+        pass
+    
     # Making the first pass and collecting the metrics
     def _first_pass_gen(self, model, input_ids, logits_processor, stopping_criteria, generation_config, max_len, **model_kwargs):
         # Extracting all of the correct values
@@ -98,7 +142,8 @@ class ReasoningGraph():
                                                                     generation_config,
                                                                     **model_kwargs)
                 
-                self.metrics.append(step_metric)
+                # Saving as a scalar
+                self.metrics.append(step_metric.detach().to(torch.float32).squeeze().cpu().item())
 
                 # Append token
                 input_ids = torch.cat([input_ids, next_tokens], dim=-1)
@@ -121,10 +166,15 @@ class ReasoningGraph():
         # zeroing all of the calculated metrics
         self.zero_metrics()
 
-        # Find max length
+        # Find max length and starting input length
         max_len = self._max_tokens(input_ids, generation_config)
+        start_len = input_ids.shape[1]
 
         # First pass storing metrics. Return the first reasoning
         output_ids = self._first_pass_gen(model, input_ids, logits_processor, stopping_criteria, generation_config, max_len, **model_kwargs)
+
+        # Create initial graph
+        self._find_node_cutoff()
+        self._first_pass_into_graph(output_ids, start_len)
         
         return output_ids
