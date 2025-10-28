@@ -2,42 +2,45 @@ import torch
 import numpy as np
 import json
 from pathlib import Path
-from GraphNode import GraphNode
+from Token import Token
 
 class ReasoningGraph():
-    def __init__(self, metric_type='entropy', branch_percent=0.2, branch_children=2):
-        self.metric_type = metric_type
-        self.metrics = []
-        self.prob_distributions = []
+    def __init__(self, tokenizer, metric='entropy', branch_percent=0.2):
+        self.metric = metric
+        self.metric_values = []
+        self.probabilities = []
         self.logits = []
+
+        self.tokenizer = tokenizer
+        
         self.branch_percent = branch_percent
-        self.branch_children = branch_children
-        self.node_cutoff = float('inf') # So none will be above this
-        self.cur_node = None
-        self.head_node = None
+        self.metric_threshold = float('inf') # So none will be above this
+        
+        self.curr_token = None
+        self.first_token = None
 
     # Clear all of the saved metrics
     def zero_metrics(self):
         """Clear all saved metrics and ensure tensor memory is freed."""
         # Clear lists
-        self.metrics = []
+        self.metric_values = []
         
         # Clear and free tensor memory
-        if hasattr(self, 'prob_distributions'):
-            for p in self.prob_distributions:
+        if hasattr(self, 'probabilities'):
+            for p in self.probabilities:
                 del p
         if hasattr(self, 'logits'):
             for l in self.logits:
                 del l
                 
-        self.prob_distributions = []
+        self.probabilities = []
         self.logits = []
 
     # Calculate the metric on the token distribution
     def _calculate_metric(self, probs):
         metric_list = ['entropy']
         metric_set = set(metric_list)
-        if self.metric_type not in metric_set:
+        if self.metric not in metric_set:
             raise NotImplementedError('This metric is currently not implemented.')
 
         # Calculate entropy
@@ -47,13 +50,13 @@ class ReasoningGraph():
         return step_entropy
     
     # Generate a single token
-    def _single_token_gen(self,
-        model,
-        input_ids,
-        logits_processor,
-        generation_config,
-        **model_kwargs
-    ):
+    def _generate_single_token(self,
+            model,
+            input_ids,
+            logits_processor,
+            generation_config,
+            **model_kwargs
+        ):
         temperature = getattr(generation_config, "temperature", 1.0)
         model_kwargs.setdefault("use_cache", True)
 
@@ -96,7 +99,7 @@ class ReasoningGraph():
         return next_tokens, step_metric, probs, next_token_scores, model_kwargs
     
     # Determine max tokens for generation
-    def _max_tokens(self, input_ids, generation_config):
+    def _determine_max_tokens(self, input_ids, generation_config):
         # Set max length
         max_len = getattr(generation_config, "max_length", None)
         if max_len is None:
@@ -107,9 +110,9 @@ class ReasoningGraph():
 
         return max_len
     
-    # Determines the value to separate reasoning and non reasoning tokens
-    def _find_node_cutoff(self):
-        sorted_metrics = sorted(self.metrics, reverse=True)
+    # Determines the metric threshold to flag token as a 'forking token'
+    def _find_metric_threshold(self):
+        sorted_metrics = sorted(self.metric_values, reverse=True)
         wanted_idx = int(self.branch_percent * len(sorted_metrics)) - 1
         wanted_idx = max(0, min(wanted_idx, len(sorted_metrics) - 1))
 
@@ -117,47 +120,61 @@ class ReasoningGraph():
         while sorted_metrics[wanted_idx] <= 0:
             wanted_idx -= 1
 
-        self.node_cutoff = sorted_metrics[wanted_idx]
+        self.metric_threshold = sorted_metrics[wanted_idx]
         
     # Turns the nodes into the first graph
-    def _first_pass_into_graph(self, output_ids, start_len):
-        token_dist = 0
-        gen_ids = output_ids[0][start_len:]
+    def _build_graph_from_generation(self, output_ids):
+        for output_id, metric_value in zip(output_ids, self.metric_values):
+            
+            token = Token(
+                token_id=output_id.item(),
+                value=self.tokenizer.decode(output_id),
+                metric='entropy',
+                metric_value=metric_value,
+                is_forking_token=(metric_value >= self.metric_threshold),
+                part_of_response=True
+            )
 
-        for i, metric in enumerate(self.metrics):
-            # Forking token
-            if metric >= self.node_cutoff:
-                tmp_node = GraphNode(gen_ids[i].item())
-
-                # Adding the new node
-                if self.cur_node is None:
-                    self.head_node = tmp_node
-                else:
-                    self.cur_node.add_child(tmp_node, token_dist)
-                    tmp_node.add_parent(self.cur_node, token_dist)
-                
-                self.cur_node = tmp_node
-                token_dist = 0
+            # if token is our first token, flag it as such
+            if self.curr_token is None:
+                self.first_token = token
             else:
-                token_dist += 1
+                # for `self.curr_token`, `token` is the next token
+                self.curr_token.add_next_token(token)
+                # for `token`, `self.curr_token` is the previous token
+                token.add_prev_token(self.curr_token)
 
-    # Print the graph
-    def print_reasoning_graph(self):
-        pass
+            # then, `token` becomes the `curr_token` for the next token
+            self.curr_token = token
     
-    def get_token_sequence(self):
+    # Get sequence of tokens ultimately used for response
+    def _get_token_sequence(self):
         """Get the sequence of nodes in generation order."""
-        if not self.head_node:
+        if not self.first_token:
             return []
             
         sequence = []
-        current = self.head_node
-        while current:
+        current = self.first_token
+        visited = set()  # Keep track of visited tokens to prevent infinite loops
+        
+        while current and current.id not in visited:
             sequence.append(current)
-            # Follow first child for sequential path
-            current = current.children[0] if current.children else None
+            visited.add(current.id)
+            
+            # Try to find the next token that's part of the response
+            next_token = None
+            if current.next_tokens:
+                for token in current.next_tokens:
+                    if token.part_of_response and token.id not in visited:
+                        next_token = token
+                        break
+            
+            # Move to next token or end if no valid next token found
+            current = next_token
+        
         return sequence
 
+    # Save ReasoningGraph & other artifacts as files for experiment tracking
     def save(self, save_dir, decoded_sequence=None):
         """
         Save the reasoning graph data to a directory with separate files for:
@@ -170,29 +187,41 @@ class ReasoningGraph():
         # 1. Save numerical data using numpy
         np.savez_compressed(
             save_dir / 'numerical_data.npz',
-            metrics=np.array(self.metrics),
-            prob_distributions=np.stack([p.numpy() for p in self.prob_distributions]),
+            metrics=np.array(self.metric_values),
+            probabilities=np.stack([p.numpy() for p in self.probabilities]),
             logits=np.stack([l.numpy() for l in self.logits])
         )
 
         # 2. Save graph structure and metadata
         def node_to_dict(node, idx, node_to_idx):
-            # Represent parents/children by their indices in the sequential token path
+            # Represent tokens by their indices in the sequential token path
             if node is None:
                 return None
-            parent_indices = [node_to_idx[p] for p in node.parents] if node.parents else []
-            child_indices = [node_to_idx[c] for c in node.children] if node.children else []
+                
+            # Safely get previous token index
+            prev_token_idx = None
+            if node.prev_token is not None and node.prev_token in node_to_idx:
+                prev_token_idx = node_to_idx[node.prev_token]
+            
+            # Safely get next token indices
+            next_token_indices = []
+            if node.next_tokens:  # This is initialized as [] in Token class
+                for next_token in node.next_tokens:
+                    if next_token in node_to_idx:
+                        next_token_indices.append(node_to_idx[next_token])
+            
             return {
-                'token_val': node.token_val,
-                'token': decoded_sequence[idx] if decoded_sequence is not None and idx < len(decoded_sequence) else None,
-                'parents': parent_indices,
-                'children': child_indices,
-                'parent_dists': node.parent_dists,
-                'children_dists': node.children_dists
+                'id': node.id,
+                'value': node.value,
+                'prev_token': prev_token_idx,
+                'next_tokens': next_token_indices,
+                'metric_value': node.metric_value,
+                'is_forking_token': node.is_forking_token,
+                'part_of_response': node.part_of_response
             }
 
         # Get sequential token generation path
-        token_sequence = self.get_token_sequence()
+        token_sequence = self._get_token_sequence()
         sequence_data = []
 
         # Mapping from node -> index
@@ -200,34 +229,35 @@ class ReasoningGraph():
 
         for i, node in enumerate(token_sequence):
             node_data = {
-                'token': decoded_sequence[i] if decoded_sequence is not None and i < len(decoded_sequence) else node.token_val,
-                'entropy': self.metrics[i] if i < len(self.metrics) else None,
-                'is_branch_point': (self.metrics[i] >= self.node_cutoff) if i < len(self.metrics) else False,
-                'next_distance': node.children_dists[0] if node.children and len(node.children_dists) > 0 else 0
+                'token': decoded_sequence[i] if decoded_sequence is not None and i < len(decoded_sequence) else node.value,
+                'metric_value': node.metric_value,
+                'is_forking_token': node.is_forking_token,
+                'part_of_response': node.part_of_response
             }
             sequence_data.append(node_data)
 
         # Save full structure keyed by node index (safer than token values which may collide)
         nodes_dict = {str(i): node_to_dict(node, i, node_to_idx) for i, node in enumerate(token_sequence)}
 
-        graph_data = {
+        graph_structure = {
             'metadata': {
-                'metric_type': self.metric_type,
+                'metric': self.metric,
                 'branch_percent': self.branch_percent,
-                'branch_children': self.branch_children,
-                'node_cutoff': float(self.node_cutoff),
+                'metric_threshold': float(self.metric_threshold),
+                'response_length': len(token_sequence),
             },
+            'final_sequence': sequence_data,
             'graph': {
-                'nodes': nodes_dict,
-                'sequence': sequence_data
+                'nodes': nodes_dict
             }
         }
 
         with open(save_dir / 'graph_structure.json', 'w') as f:
-            json.dump(graph_data, f, indent=2)
+            json.dump(graph_structure, f, indent=2)
 
+    # Load ReasoningGraph from saved files
     @classmethod
-    def load(cls, save_dir):
+    def load(cls, save_dir, tokenizer):
         """Load a reasoning graph from saved files."""
         save_dir = Path(save_dir)
         
@@ -242,70 +272,74 @@ class ReasoningGraph():
 
         # Create new instance
         graph = cls(
-            metric_type=metadata['metric_type'],
+            tokenizer=tokenizer,
+            metric=metadata['metric'],
             branch_percent=metadata['branch_percent'],
-            branch_children=metadata['branch_children']
         )
         
         # Restore numerical data
-        graph.metrics = numerical_data['metrics'].tolist()
-        graph.prob_distributions = [torch.from_numpy(p) for p in numerical_data['prob_distributions']]
+        graph.metric_values = numerical_data['metrics'].tolist()
+        graph.probabilities = [torch.from_numpy(p) for p in numerical_data['probabilities']]
         graph.logits = [torch.from_numpy(l) for l in numerical_data['logits']]
-        graph.node_cutoff = metadata['node_cutoff']
+        graph.metric_threshold = metadata['metric_threshold']
 
         # Reconstruct graph structure (nodes keyed by index)
         nodes = {}
         # First pass: create nodes
         for idx_str, node_data in graph_structure['nodes'].items():
-            token_repr = node_data.get('token') if node_data.get('token') is not None else node_data.get('token_val')
-            nodes[idx_str] = GraphNode(
-                token_val=token_repr,
-                parents=[],
-                children=[],
-                parent_dists=node_data.get('parent_dists', []),
-                children_dists=node_data.get('children_dists', [])
+            token_value = node_data.get('value')
+            nodes[idx_str] = Token(
+                token_id=node_data.get('id'),
+                value=token_value,
+                metric=node_data.get('metric', 'entropy'),
+                metric_value=node_data.get('metric_value'),
+                is_forking_token=node_data.get('is_forking_token', False),
+                part_of_response=node_data.get('part_of_response', True)
             )
 
-        # Second pass: connect nodes using parent/child indices
+        # Second pass: connect nodes using prev/next relationships
         for idx_str, node_data in graph_structure['nodes'].items():
             node = nodes[idx_str]
-            for parent_idx in node_data.get('parents', []):
-                parent_key = str(parent_idx)
-                if parent_key in nodes:
-                    node.parents.append(nodes[parent_key])
-            for child_idx in node_data.get('children', []):
-                child_key = str(child_idx)
-                if child_key in nodes:
-                    node.children.append(nodes[child_key])
+            prev_token_idx = node_data.get('prev_token')
+            if prev_token_idx is not None:
+                prev_key = str(prev_token_idx)
+                if prev_key in nodes:
+                    node.add_prev_token(nodes[prev_key])
+            
+            next_token_indices = node_data.get('next_tokens', [])
+            for next_idx in next_token_indices:
+                next_key = str(next_idx)
+                if next_key in nodes:
+                    node.add_next_token(nodes[next_key])
 
         # Set head node to the first sequence element (index 0) if present
         if graph_structure.get('sequence') and len(graph_structure['sequence']) > 0:
-            graph.head_node = nodes.get('0')
+            graph.first_token = nodes.get('0')
         else:
-            graph.head_node = None
+            graph.first_token = None
 
         return graph
     
     # Making the first pass and collecting the metrics
-    def _first_pass_gen(self, model, input_ids, logits_processor, stopping_criteria, generation_config, max_len, **model_kwargs):
+    def _generate_sequence(self, model, input_ids, logits_processor, stopping_criteria, generation_config, max_len, **model_kwargs):
         # Extracting all of the correct values
         model_kwargs = model._get_initial_cache_position(input_ids.shape[1], input_ids.device, model_kwargs)
 
         # First pass
-        with torch.no_grad():
+        with torch.inference_mode():
             while input_ids.shape[1] < max_len:
                 # Single token gen
-                next_tokens, step_metric, probs, logits, model_kwargs = self._single_token_gen(model,
+                next_tokens, step_metric, probs, logits, model_kwargs = self._generate_single_token(model,
                                                                     input_ids,
                                                                     logits_processor,
                                                                     generation_config,
                                                                     **model_kwargs)
 
                 # Saving as a scalar
-                self.metrics.append(step_metric.detach().to(torch.float32).squeeze().cpu().item())
+                self.metric_values.append(step_metric.detach().to(torch.float32).squeeze().cpu().item())
 
                 # Saving the probability distribution
-                self.prob_distributions.append(probs.detach().to(torch.float32).squeeze().cpu())
+                self.probabilities.append(probs.detach().to(torch.float32).squeeze().cpu())
 
                 # Saving the logits (pre-softmax)
                 self.logits.append(logits.detach().to(torch.float32).squeeze().cpu())
@@ -319,29 +353,33 @@ class ReasoningGraph():
         
         return input_ids
     
-    # Build the entire reasoning graph. Called in generate
-    def reasoning_graph_builder(self, model,
-                         input_ids,
-                         *,
-                         logits_processor,
-                         stopping_criteria,
-                         generation_config,
-                         **model_kwargs
-    ):
+    # Generate tokens and build the entire reasoning graph (called upstream as custom_generate of model.generate)
+    def generate_and_build_graph(
+            self,
+            model,
+            input_ids,
+            *,
+            logits_processor,
+            stopping_criteria,
+            generation_config,
+            **model_kwargs
+        ):
         # zeroing all of the calculated metrics. Restarting the graphs
         self.zero_metrics()
-        self.cur_node = None
-        self.head_node = None 
+        self.curr_token = None
+        self.first_token = None 
 
         # Find max length and starting input length
-        max_len = self._max_tokens(input_ids, generation_config)
+        max_len = self._determine_max_tokens(input_ids, generation_config)
         start_len = input_ids.shape[1]
 
-        # First pass storing metrics. Return the first reasoning
-        output_ids = self._first_pass_gen(model, input_ids, logits_processor, stopping_criteria, generation_config, max_len, **model_kwargs)
+        # Generate sequence as first pass
+        output_ids = self._generate_sequence(model, input_ids, logits_processor, stopping_criteria, generation_config, max_len, **model_kwargs)
 
-        # Create initial graph
-        self._find_node_cutoff()
-        self._first_pass_into_graph(output_ids, start_len)
+        # Find threshold for metric on the basis of which to flag tokens as 'forking tokens'
+        self._find_metric_threshold()
+
+        # Build graph based on generated sequence
+        self._build_graph_from_generation(output_ids[0][start_len:])
         
         return output_ids
