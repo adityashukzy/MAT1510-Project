@@ -1,0 +1,3429 @@
+{
+  "metadata": {
+    "metric": "entropy",
+    "branch_percent": 0.2,
+    "metric_threshold": 0.041259765625,
+    "response_length": 201
+  },
+  "final_sequence": [
+    {
+      "token": "To",
+      "metric_value": 0.458984375,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " determine",
+      "metric_value": 0.10986328125,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " how",
+      "metric_value": 0.390625,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " many",
+      "metric_value": 0.0011138916015625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " kilograms",
+      "metric_value": 0.000644683837890625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " of",
+      "metric_value": 0.0006103515625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " rice",
+      "metric_value": 0.000263214111328125,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " Gold",
+      "metric_value": 0.076171875,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": "y",
+      "metric_value": 0.000286102294921875,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " gave",
+      "metric_value": 0.00102996826171875,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " to",
+      "metric_value": 0.0011138916015625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " her",
+      "metric_value": 1.0728836059570312e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " cousin",
+      "metric_value": 0.0021209716796875,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " and",
+      "metric_value": 1.564621925354004e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " brother",
+      "metric_value": 0.003173828125,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": ",",
+      "metric_value": 0.00604248046875,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " we",
+      "metric_value": 0.041259765625,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " need",
+      "metric_value": 0.6875,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " to",
+      "metric_value": 5.078315734863281e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " follow",
+      "metric_value": 0.01190185546875,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " these",
+      "metric_value": 0.0054931640625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " steps",
+      "metric_value": 5.435943603515625e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": ":\n\n",
+      "metric_value": 0.00026702880859375,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "1",
+      "metric_value": 0.000156402587890625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": ".",
+      "metric_value": 3.361701965332031e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " Calculate",
+      "metric_value": 0.35546875,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " the",
+      "metric_value": 0.00173187255859375,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " total",
+      "metric_value": 0.4765625,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " number",
+      "metric_value": 0.0034332275390625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " of",
+      "metric_value": 1.6689300537109375e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " sacks",
+      "metric_value": 0.0086669921875,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " Gold",
+      "metric_value": 0.92578125,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": "y",
+      "metric_value": 0.0004749298095703125,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " gave",
+      "metric_value": 0.00408935546875,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " away",
+      "metric_value": 0.390625,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": ".\n",
+      "metric_value": 0.08935546875,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": "2",
+      "metric_value": 0.0003986358642578125,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": ".",
+      "metric_value": 9.179115295410156e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " Multiply",
+      "metric_value": 0.279296875,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " the",
+      "metric_value": 2.0623207092285156e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " total",
+      "metric_value": 0.55859375,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " number",
+      "metric_value": 3.24249267578125e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " of",
+      "metric_value": 3.546476364135742e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " sacks",
+      "metric_value": 0.006683349609375,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " given",
+      "metric_value": 0.37109375,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " away",
+      "metric_value": 0.00010585784912109375,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " by",
+      "metric_value": 1.6391277313232422e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " the",
+      "metric_value": 1.6689300537109375e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " weight",
+      "metric_value": 0.16015625,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " of",
+      "metric_value": 0.0021514892578125,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " rice",
+      "metric_value": 0.17578125,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " per",
+      "metric_value": 0.002716064453125,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " sack",
+      "metric_value": 0.006866455078125,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": ".\n\n",
+      "metric_value": 0.14453125,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": "First",
+      "metric_value": 0.1298828125,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": ",",
+      "metric_value": 1.245737075805664e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " let",
+      "metric_value": 0.458984375,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": "'s",
+      "metric_value": 7.092952728271484e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " find",
+      "metric_value": 0.04736328125,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " out",
+      "metric_value": 0.6484375,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " how",
+      "metric_value": 0.267578125,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " many",
+      "metric_value": 5.513429641723633e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " sacks",
+      "metric_value": 0.006500244140625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " Gold",
+      "metric_value": 0.0064697265625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "y",
+      "metric_value": 2.872943878173828e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " gave",
+      "metric_value": 0.00023174285888671875,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " away",
+      "metric_value": 0.041259765625,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " in",
+      "metric_value": 0.57421875,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " total",
+      "metric_value": 1.3887882232666016e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": ".",
+      "metric_value": 0.6953125,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " She",
+      "metric_value": 0.58984375,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " gave",
+      "metric_value": 0.000179290771484375,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " ",
+      "metric_value": 5.698204040527344e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "3",
+      "metric_value": 7.748603820800781e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " sacks",
+      "metric_value": 0.0037384033203125,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " to",
+      "metric_value": 3.1478703022003174e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " her",
+      "metric_value": 1.862645149230957e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " cousin",
+      "metric_value": 0.0005645751953125,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " and",
+      "metric_value": 0.0001316070556640625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " ",
+      "metric_value": 9.313225746154785e-08,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "4",
+      "metric_value": 7.534027099609375e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " sacks",
+      "metric_value": 0.0021514892578125,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " to",
+      "metric_value": 3.0174851417541504e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " her",
+      "metric_value": 2.041459083557129e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " brother",
+      "metric_value": 4.363059997558594e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": ".",
+      "metric_value": 0.1259765625,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " So",
+      "metric_value": 0.2490234375,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": ",",
+      "metric_value": 0.0172119140625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " the",
+      "metric_value": 0.004608154296875,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " total",
+      "metric_value": 1.1265277862548828e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " number",
+      "metric_value": 1.0073184967041016e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " of",
+      "metric_value": 8.940696716308594e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " sacks",
+      "metric_value": 0.001739501953125,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " given",
+      "metric_value": 0.00081634521484375,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " away",
+      "metric_value": 0.0004215240478515625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " is",
+      "metric_value": 3.2782554626464844e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": ":\n",
+      "metric_value": 0.004608154296875,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "\\[",
+      "metric_value": 0.005767822265625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " ",
+      "metric_value": 0.06591796875,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": "3",
+      "metric_value": 1.6670674085617065e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " +",
+      "metric_value": 0.00017547607421875,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " ",
+      "metric_value": 1.811713445931673e-09,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "4",
+      "metric_value": 5.662441253662109e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " =",
+      "metric_value": 2.9336661100387573e-08,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " ",
+      "metric_value": 1.520675141364336e-09,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "7",
+      "metric_value": 2.8870999813079834e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " \\",
+      "metric_value": 9.357929229736328e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "text",
+      "metric_value": 0.314453125,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": "{",
+      "metric_value": 8.106231689453125e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " sacks",
+      "metric_value": 0.0022125244140625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "}",
+      "metric_value": 1.1026859283447266e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " \\",
+      "metric_value": 2.1010637283325195e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "]\n\n",
+      "metric_value": 8.67992639541626e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "Next",
+      "metric_value": 0.0001277923583984375,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": ",",
+      "metric_value": 2.384185791015625e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " we",
+      "metric_value": 0.004486083984375,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " know",
+      "metric_value": 0.58203125,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " that",
+      "metric_value": 3.7670135498046875e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " each",
+      "metric_value": 5.5789947509765625e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " sack",
+      "metric_value": 0.0123291015625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " contains",
+      "metric_value": 0.018798828125,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " ",
+      "metric_value": 5.634501576423645e-08,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "2",
+      "metric_value": 7.343292236328125e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "5",
+      "metric_value": 1.0710209608078003e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " kilograms",
+      "metric_value": 0.0025482177734375,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " of",
+      "metric_value": 5.513429641723633e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " rice",
+      "metric_value": 4.363059997558594e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": ".",
+      "metric_value": 1.055002212524414e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " Therefore",
+      "metric_value": 0.01275634765625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": ",",
+      "metric_value": 2.6635825634002686e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " the",
+      "metric_value": 0.009765625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " total",
+      "metric_value": 8.344650268554688e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " weight",
+      "metric_value": 0.0279541015625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " of",
+      "metric_value": 1.648440957069397e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " the",
+      "metric_value": 0.53125,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " rice",
+      "metric_value": 0.0042724609375,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " given",
+      "metric_value": 0.009521484375,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " away",
+      "metric_value": 0.29296875,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " is",
+      "metric_value": 1.5497207641601562e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": ":\n",
+      "metric_value": 3.0994415283203125e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "\\[",
+      "metric_value": 4.516914486885071e-08,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " ",
+      "metric_value": 1.3504177331924438e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "7",
+      "metric_value": 1.4808028936386108e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " \\",
+      "metric_value": 2.4028122425079346e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "text",
+      "metric_value": 0.000713348388671875,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "{",
+      "metric_value": 2.8461217880249023e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " sacks",
+      "metric_value": 0.0033721923828125,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "}",
+      "metric_value": 3.557652235031128e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " \\",
+      "metric_value": 1.8030405044555664e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "times",
+      "metric_value": 3.9301812648773193e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " ",
+      "metric_value": 2.0605511963367462e-08,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "2",
+      "metric_value": 9.34600830078125e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "5",
+      "metric_value": 4.947185516357422e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " \\",
+      "metric_value": 3.520399332046509e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "text",
+      "metric_value": 2.7120113372802734e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "{",
+      "metric_value": 1.4901161193847656e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " kilograms",
+      "metric_value": 0.5078125,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " per",
+      "metric_value": 0.55859375,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " sack",
+      "metric_value": 0.0126953125,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "}",
+      "metric_value": 3.888271749019623e-08,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " =",
+      "metric_value": 5.75091689825058e-08,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " ",
+      "metric_value": 9.138602763414383e-09,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "1",
+      "metric_value": 4.1425228118896484e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "7",
+      "metric_value": 5.662441253662109e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "5",
+      "metric_value": 2.1141022443771362e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " \\",
+      "metric_value": 2.293381839990616e-08,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "text",
+      "metric_value": 5.471520125865936e-08,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "{",
+      "metric_value": 3.159046173095703e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " kilograms",
+      "metric_value": 0.00020694732666015625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "}",
+      "metric_value": 6.48200511932373e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " \\",
+      "metric_value": 2.0023435354232788e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "]\n\n",
+      "metric_value": 1.5795230865478516e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "So",
+      "metric_value": 0.248046875,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": ",",
+      "metric_value": 8.242204785346985e-08,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " the",
+      "metric_value": 0.005340576171875,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " total",
+      "metric_value": 0.00167083740234375,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " kilograms",
+      "metric_value": 0.9765625,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": " of",
+      "metric_value": 7.450580596923828e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " rice",
+      "metric_value": 4.7206878662109375e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " Gold",
+      "metric_value": 0.3515625,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": "y",
+      "metric_value": 8.404254913330078e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " gave",
+      "metric_value": 0.00011777877807617188,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " to",
+      "metric_value": 3.3676624298095703e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " her",
+      "metric_value": 1.3709068298339844e-06,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " cousin",
+      "metric_value": 0.001312255859375,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " and",
+      "metric_value": 7.078051567077637e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " brother",
+      "metric_value": 0.00070953369140625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": " is",
+      "metric_value": 0.00052642822265625,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": ":\n",
+      "metric_value": 0.3671875,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": "\\",
+      "metric_value": 0.62890625,
+      "is_forking_token": true,
+      "part_of_response": true
+    },
+    {
+      "token": "[\n",
+      "metric_value": 0.00048065185546875,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "\\",
+      "metric_value": 6.668269634246826e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "boxed",
+      "metric_value": 5.029141902923584e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "{",
+      "metric_value": 6.51925802230835e-08,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "1",
+      "metric_value": 4.7497451305389404e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "7",
+      "metric_value": 1.3131648302078247e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "5",
+      "metric_value": 1.1222437024116516e-07,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "}\n",
+      "metric_value": 2.014636993408203e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "\\",
+      "metric_value": 3.790855407714844e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "]",
+      "metric_value": 9.870529174804688e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    },
+    {
+      "token": "<|im_end|>",
+      "metric_value": 2.181529998779297e-05,
+      "is_forking_token": false,
+      "part_of_response": true
+    }
+  ],
+  "graph": {
+    "nodes": {
+      "0": {
+        "id": "e0e1c4cf-164d-46e6-be3b-7d5810aa9ab5",
+        "value": "To",
+        "prev_token": null,
+        "next_tokens": [
+          1
+        ],
+        "metric_value": 0.458984375,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "1": {
+        "id": "5a6a911e-df3c-4cbf-a562-0483ae8a11a7",
+        "value": " determine",
+        "prev_token": 0,
+        "next_tokens": [
+          2
+        ],
+        "metric_value": 0.10986328125,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "2": {
+        "id": "53a09599-d1f2-4847-83c4-b7db29d381be",
+        "value": " how",
+        "prev_token": 1,
+        "next_tokens": [
+          3
+        ],
+        "metric_value": 0.390625,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "3": {
+        "id": "dea17890-0f26-4ffd-b74d-873a00e7cc62",
+        "value": " many",
+        "prev_token": 2,
+        "next_tokens": [
+          4
+        ],
+        "metric_value": 0.0011138916015625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "4": {
+        "id": "2928ddaf-c60b-4079-84a3-e29345fd642f",
+        "value": " kilograms",
+        "prev_token": 3,
+        "next_tokens": [
+          5
+        ],
+        "metric_value": 0.000644683837890625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "5": {
+        "id": "a8e89630-44ed-4ab4-937b-d8775b1192ca",
+        "value": " of",
+        "prev_token": 4,
+        "next_tokens": [
+          6
+        ],
+        "metric_value": 0.0006103515625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "6": {
+        "id": "8c1ca52e-3785-44a3-9dab-fdef1659347b",
+        "value": " rice",
+        "prev_token": 5,
+        "next_tokens": [
+          7
+        ],
+        "metric_value": 0.000263214111328125,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "7": {
+        "id": "bb420672-3138-4708-a3a1-a9db4df3a6d3",
+        "value": " Gold",
+        "prev_token": 6,
+        "next_tokens": [
+          8
+        ],
+        "metric_value": 0.076171875,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "8": {
+        "id": "ab2db329-47af-4a4c-8bba-d24d06af678d",
+        "value": "y",
+        "prev_token": 7,
+        "next_tokens": [
+          9
+        ],
+        "metric_value": 0.000286102294921875,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "9": {
+        "id": "6063ac78-e638-4e3f-bf61-c014a4cbba37",
+        "value": " gave",
+        "prev_token": 8,
+        "next_tokens": [
+          10
+        ],
+        "metric_value": 0.00102996826171875,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "10": {
+        "id": "74bd6e73-b8fa-4e04-bc63-1d5ef0c4c92d",
+        "value": " to",
+        "prev_token": 9,
+        "next_tokens": [
+          11
+        ],
+        "metric_value": 0.0011138916015625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "11": {
+        "id": "8422b5cc-3bf8-4835-82c3-db12107e883c",
+        "value": " her",
+        "prev_token": 10,
+        "next_tokens": [
+          12
+        ],
+        "metric_value": 1.0728836059570312e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "12": {
+        "id": "5f96b47c-7486-4d10-8a47-b377a2131c13",
+        "value": " cousin",
+        "prev_token": 11,
+        "next_tokens": [
+          13
+        ],
+        "metric_value": 0.0021209716796875,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "13": {
+        "id": "74e9693f-a785-4d79-bc27-485eeed590e8",
+        "value": " and",
+        "prev_token": 12,
+        "next_tokens": [
+          14
+        ],
+        "metric_value": 1.564621925354004e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "14": {
+        "id": "047be371-e80a-4181-9108-ebe4c4f53efd",
+        "value": " brother",
+        "prev_token": 13,
+        "next_tokens": [
+          15
+        ],
+        "metric_value": 0.003173828125,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "15": {
+        "id": "8106b1e4-9781-4ed5-962f-d80bd7b3dcec",
+        "value": ",",
+        "prev_token": 14,
+        "next_tokens": [
+          16
+        ],
+        "metric_value": 0.00604248046875,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "16": {
+        "id": "6ddbd13b-a2b5-4fbb-85a1-fb89db576293",
+        "value": " we",
+        "prev_token": 15,
+        "next_tokens": [
+          17
+        ],
+        "metric_value": 0.041259765625,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "17": {
+        "id": "692bbbd7-6980-4c48-9b33-857a399c2f92",
+        "value": " need",
+        "prev_token": 16,
+        "next_tokens": [
+          18
+        ],
+        "metric_value": 0.6875,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "18": {
+        "id": "26f0697e-2021-45b5-a5d5-192fdd51b138",
+        "value": " to",
+        "prev_token": 17,
+        "next_tokens": [
+          19
+        ],
+        "metric_value": 5.078315734863281e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "19": {
+        "id": "b5426e38-a9da-4361-b9cf-ebdabee8bac5",
+        "value": " follow",
+        "prev_token": 18,
+        "next_tokens": [
+          20
+        ],
+        "metric_value": 0.01190185546875,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "20": {
+        "id": "ec898bed-dc85-4fc8-be6e-3687f476ba9c",
+        "value": " these",
+        "prev_token": 19,
+        "next_tokens": [
+          21
+        ],
+        "metric_value": 0.0054931640625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "21": {
+        "id": "b7e29ef6-d6cf-48ee-9ee8-83e7fb5abcb7",
+        "value": " steps",
+        "prev_token": 20,
+        "next_tokens": [
+          22
+        ],
+        "metric_value": 5.435943603515625e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "22": {
+        "id": "78fbd0db-4a85-4831-a519-8646889770d1",
+        "value": ":\n\n",
+        "prev_token": 21,
+        "next_tokens": [
+          23
+        ],
+        "metric_value": 0.00026702880859375,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "23": {
+        "id": "aee70497-2c0e-4ed3-9b43-f3c7d1e043da",
+        "value": "1",
+        "prev_token": 22,
+        "next_tokens": [
+          24
+        ],
+        "metric_value": 0.000156402587890625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "24": {
+        "id": "1be4176d-f905-4159-93b2-f54b3ac8f52b",
+        "value": ".",
+        "prev_token": 23,
+        "next_tokens": [
+          25
+        ],
+        "metric_value": 3.361701965332031e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "25": {
+        "id": "f3f98268-5dc7-442d-93a4-2f2acf8177f6",
+        "value": " Calculate",
+        "prev_token": 24,
+        "next_tokens": [
+          26
+        ],
+        "metric_value": 0.35546875,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "26": {
+        "id": "6044088e-bcdb-4bcf-a664-be0771a62fea",
+        "value": " the",
+        "prev_token": 25,
+        "next_tokens": [
+          27
+        ],
+        "metric_value": 0.00173187255859375,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "27": {
+        "id": "e97f84c5-1d4a-4342-ba3d-354c957eecb1",
+        "value": " total",
+        "prev_token": 26,
+        "next_tokens": [
+          28
+        ],
+        "metric_value": 0.4765625,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "28": {
+        "id": "a9a3c81a-3d7a-48e1-bb53-19ff7d569aed",
+        "value": " number",
+        "prev_token": 27,
+        "next_tokens": [
+          29
+        ],
+        "metric_value": 0.0034332275390625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "29": {
+        "id": "773d3f4c-0c53-4dcb-9e1b-b1a5bf6660da",
+        "value": " of",
+        "prev_token": 28,
+        "next_tokens": [
+          30
+        ],
+        "metric_value": 1.6689300537109375e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "30": {
+        "id": "cc76341e-59e0-44ad-b6dd-cd54ace77804",
+        "value": " sacks",
+        "prev_token": 29,
+        "next_tokens": [
+          31
+        ],
+        "metric_value": 0.0086669921875,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "31": {
+        "id": "dbc49e9a-5253-48d4-8efb-38ba265f5720",
+        "value": " Gold",
+        "prev_token": 30,
+        "next_tokens": [
+          32
+        ],
+        "metric_value": 0.92578125,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "32": {
+        "id": "43467653-014a-4caa-b4ba-9030a15e4bae",
+        "value": "y",
+        "prev_token": 31,
+        "next_tokens": [
+          33
+        ],
+        "metric_value": 0.0004749298095703125,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "33": {
+        "id": "90383cd8-1fa0-4822-8050-4692317228bd",
+        "value": " gave",
+        "prev_token": 32,
+        "next_tokens": [
+          34
+        ],
+        "metric_value": 0.00408935546875,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "34": {
+        "id": "3c859415-6e82-493a-badf-d35f51ecce27",
+        "value": " away",
+        "prev_token": 33,
+        "next_tokens": [
+          35
+        ],
+        "metric_value": 0.390625,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "35": {
+        "id": "d3be7d9e-14f1-493e-a891-cf00c1d4e0fc",
+        "value": ".\n",
+        "prev_token": 34,
+        "next_tokens": [
+          36
+        ],
+        "metric_value": 0.08935546875,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "36": {
+        "id": "15cb7b77-96f0-4f3d-9908-59621640e8f6",
+        "value": "2",
+        "prev_token": 35,
+        "next_tokens": [
+          37
+        ],
+        "metric_value": 0.0003986358642578125,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "37": {
+        "id": "8f45fe5c-3dc6-4a98-862f-1fdea00e8d8a",
+        "value": ".",
+        "prev_token": 36,
+        "next_tokens": [
+          38
+        ],
+        "metric_value": 9.179115295410156e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "38": {
+        "id": "62dc4fc4-648c-44f2-b804-67a76fb84f3c",
+        "value": " Multiply",
+        "prev_token": 37,
+        "next_tokens": [
+          39
+        ],
+        "metric_value": 0.279296875,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "39": {
+        "id": "20abdd4e-9a68-4c56-83ef-49f4bb15892d",
+        "value": " the",
+        "prev_token": 38,
+        "next_tokens": [
+          40
+        ],
+        "metric_value": 2.0623207092285156e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "40": {
+        "id": "99c6b58a-978b-4f0d-9d53-dc903185a422",
+        "value": " total",
+        "prev_token": 39,
+        "next_tokens": [
+          41
+        ],
+        "metric_value": 0.55859375,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "41": {
+        "id": "d186062a-3380-4b95-8107-917e74878cb5",
+        "value": " number",
+        "prev_token": 40,
+        "next_tokens": [
+          42
+        ],
+        "metric_value": 3.24249267578125e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "42": {
+        "id": "46c10794-a528-4398-ae74-673b2d916c46",
+        "value": " of",
+        "prev_token": 41,
+        "next_tokens": [
+          43
+        ],
+        "metric_value": 3.546476364135742e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "43": {
+        "id": "c94be7df-14a3-42c9-bd63-995b9a27d429",
+        "value": " sacks",
+        "prev_token": 42,
+        "next_tokens": [
+          44
+        ],
+        "metric_value": 0.006683349609375,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "44": {
+        "id": "0e54935e-581c-45d2-9c0e-26db00b05c44",
+        "value": " given",
+        "prev_token": 43,
+        "next_tokens": [
+          45
+        ],
+        "metric_value": 0.37109375,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "45": {
+        "id": "d4b4235f-62b3-4d13-b38b-5000b511871d",
+        "value": " away",
+        "prev_token": 44,
+        "next_tokens": [
+          46
+        ],
+        "metric_value": 0.00010585784912109375,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "46": {
+        "id": "143ebdd1-1849-4efb-aabe-0664c05a4128",
+        "value": " by",
+        "prev_token": 45,
+        "next_tokens": [
+          47
+        ],
+        "metric_value": 1.6391277313232422e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "47": {
+        "id": "b744fe33-45fd-4802-a88b-0fb004008f6f",
+        "value": " the",
+        "prev_token": 46,
+        "next_tokens": [
+          48
+        ],
+        "metric_value": 1.6689300537109375e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "48": {
+        "id": "cb76acae-e91c-481d-b838-d758d3c11d50",
+        "value": " weight",
+        "prev_token": 47,
+        "next_tokens": [
+          49
+        ],
+        "metric_value": 0.16015625,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "49": {
+        "id": "a450de6a-daff-4f2f-b46f-7415d826a1c7",
+        "value": " of",
+        "prev_token": 48,
+        "next_tokens": [
+          50
+        ],
+        "metric_value": 0.0021514892578125,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "50": {
+        "id": "0df29433-5977-4993-82fd-89bad0c00ab5",
+        "value": " rice",
+        "prev_token": 49,
+        "next_tokens": [
+          51
+        ],
+        "metric_value": 0.17578125,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "51": {
+        "id": "ea16333a-f7f8-4ac0-9e53-0f6666fae962",
+        "value": " per",
+        "prev_token": 50,
+        "next_tokens": [
+          52
+        ],
+        "metric_value": 0.002716064453125,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "52": {
+        "id": "c9b76583-e9d2-4319-80a6-89deed2f56cd",
+        "value": " sack",
+        "prev_token": 51,
+        "next_tokens": [
+          53
+        ],
+        "metric_value": 0.006866455078125,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "53": {
+        "id": "037a8173-345d-4733-8b22-f2a73a5912f9",
+        "value": ".\n\n",
+        "prev_token": 52,
+        "next_tokens": [
+          54
+        ],
+        "metric_value": 0.14453125,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "54": {
+        "id": "537e7c01-f3f9-44c9-9a61-80800540eaef",
+        "value": "First",
+        "prev_token": 53,
+        "next_tokens": [
+          55
+        ],
+        "metric_value": 0.1298828125,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "55": {
+        "id": "fcfc2ba3-dfe8-431c-ba6a-2cbc164feccc",
+        "value": ",",
+        "prev_token": 54,
+        "next_tokens": [
+          56
+        ],
+        "metric_value": 1.245737075805664e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "56": {
+        "id": "eac4ea12-f085-44ff-9838-50a852b3d38e",
+        "value": " let",
+        "prev_token": 55,
+        "next_tokens": [
+          57
+        ],
+        "metric_value": 0.458984375,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "57": {
+        "id": "32763c5d-d8c6-4c76-9504-ca69e655a5dc",
+        "value": "'s",
+        "prev_token": 56,
+        "next_tokens": [
+          58
+        ],
+        "metric_value": 7.092952728271484e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "58": {
+        "id": "128ccf87-1541-42ce-a8a5-89d8f30491b2",
+        "value": " find",
+        "prev_token": 57,
+        "next_tokens": [
+          59
+        ],
+        "metric_value": 0.04736328125,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "59": {
+        "id": "4fc08433-0fce-4ebd-962a-9715ae2bbc16",
+        "value": " out",
+        "prev_token": 58,
+        "next_tokens": [
+          60
+        ],
+        "metric_value": 0.6484375,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "60": {
+        "id": "8dbfe113-3da2-4b33-9fca-5fb3a67468f7",
+        "value": " how",
+        "prev_token": 59,
+        "next_tokens": [
+          61
+        ],
+        "metric_value": 0.267578125,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "61": {
+        "id": "316f4476-20d3-4786-bc86-4d4122f46fc7",
+        "value": " many",
+        "prev_token": 60,
+        "next_tokens": [
+          62
+        ],
+        "metric_value": 5.513429641723633e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "62": {
+        "id": "ec1d8d3b-57ac-4ba5-a544-e95479022105",
+        "value": " sacks",
+        "prev_token": 61,
+        "next_tokens": [
+          63
+        ],
+        "metric_value": 0.006500244140625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "63": {
+        "id": "7c70ed89-a907-43a5-9163-8059f2aef07d",
+        "value": " Gold",
+        "prev_token": 62,
+        "next_tokens": [
+          64
+        ],
+        "metric_value": 0.0064697265625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "64": {
+        "id": "5163d3a1-d7d5-44f9-8515-d5a0219bdbf1",
+        "value": "y",
+        "prev_token": 63,
+        "next_tokens": [
+          65
+        ],
+        "metric_value": 2.872943878173828e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "65": {
+        "id": "57dfa280-e4ae-4343-8960-814d6f4474d4",
+        "value": " gave",
+        "prev_token": 64,
+        "next_tokens": [
+          66
+        ],
+        "metric_value": 0.00023174285888671875,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "66": {
+        "id": "97553d5d-de1e-4c7b-a104-add1eaa970a0",
+        "value": " away",
+        "prev_token": 65,
+        "next_tokens": [
+          67
+        ],
+        "metric_value": 0.041259765625,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "67": {
+        "id": "19ab4402-9e55-467f-97e2-5dac58e79a81",
+        "value": " in",
+        "prev_token": 66,
+        "next_tokens": [
+          68
+        ],
+        "metric_value": 0.57421875,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "68": {
+        "id": "60453d08-f1b3-4250-81a3-cdd02ba2fed2",
+        "value": " total",
+        "prev_token": 67,
+        "next_tokens": [
+          69
+        ],
+        "metric_value": 1.3887882232666016e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "69": {
+        "id": "c55820b0-62f5-4eca-aff6-7ed193dff1d0",
+        "value": ".",
+        "prev_token": 68,
+        "next_tokens": [
+          70
+        ],
+        "metric_value": 0.6953125,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "70": {
+        "id": "11dc3dd3-0642-4b29-bd74-d0f2ffc908a4",
+        "value": " She",
+        "prev_token": 69,
+        "next_tokens": [
+          71
+        ],
+        "metric_value": 0.58984375,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "71": {
+        "id": "2eb90ca3-de8a-45fe-9210-50286122e5c3",
+        "value": " gave",
+        "prev_token": 70,
+        "next_tokens": [
+          72
+        ],
+        "metric_value": 0.000179290771484375,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "72": {
+        "id": "24bc01e8-cba9-4621-bd1a-8663a815f3a3",
+        "value": " ",
+        "prev_token": 71,
+        "next_tokens": [
+          73
+        ],
+        "metric_value": 5.698204040527344e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "73": {
+        "id": "d09918b0-a17e-4662-b594-7222d82f1caf",
+        "value": "3",
+        "prev_token": 72,
+        "next_tokens": [
+          74
+        ],
+        "metric_value": 7.748603820800781e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "74": {
+        "id": "64200ff0-66a6-4b69-958a-709618e7b85a",
+        "value": " sacks",
+        "prev_token": 73,
+        "next_tokens": [
+          75
+        ],
+        "metric_value": 0.0037384033203125,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "75": {
+        "id": "7eebe197-bd00-4402-b299-1541ef920f42",
+        "value": " to",
+        "prev_token": 74,
+        "next_tokens": [
+          76
+        ],
+        "metric_value": 3.1478703022003174e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "76": {
+        "id": "e3057a2c-f57b-46a0-b294-965b87f43345",
+        "value": " her",
+        "prev_token": 75,
+        "next_tokens": [
+          77
+        ],
+        "metric_value": 1.862645149230957e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "77": {
+        "id": "0b693f37-b75e-4bf6-bd07-de54f5b4c8f4",
+        "value": " cousin",
+        "prev_token": 76,
+        "next_tokens": [
+          78
+        ],
+        "metric_value": 0.0005645751953125,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "78": {
+        "id": "fbccc3da-1cc4-4529-bd06-b6e072204e2b",
+        "value": " and",
+        "prev_token": 77,
+        "next_tokens": [
+          79
+        ],
+        "metric_value": 0.0001316070556640625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "79": {
+        "id": "ac1d53d8-38ec-433f-acc6-ea10737f34a0",
+        "value": " ",
+        "prev_token": 78,
+        "next_tokens": [
+          80
+        ],
+        "metric_value": 9.313225746154785e-08,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "80": {
+        "id": "45977b32-0a0b-4724-be71-b60143897507",
+        "value": "4",
+        "prev_token": 79,
+        "next_tokens": [
+          81
+        ],
+        "metric_value": 7.534027099609375e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "81": {
+        "id": "ba4a5b6f-e1eb-444f-ab8e-61eb28679bb3",
+        "value": " sacks",
+        "prev_token": 80,
+        "next_tokens": [
+          82
+        ],
+        "metric_value": 0.0021514892578125,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "82": {
+        "id": "9b60daca-0912-4f0a-840b-b756e73c0817",
+        "value": " to",
+        "prev_token": 81,
+        "next_tokens": [
+          83
+        ],
+        "metric_value": 3.0174851417541504e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "83": {
+        "id": "e03861d9-f394-40d9-8938-bd1d763f917c",
+        "value": " her",
+        "prev_token": 82,
+        "next_tokens": [
+          84
+        ],
+        "metric_value": 2.041459083557129e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "84": {
+        "id": "e677a0ca-2be5-4965-9125-c90361160dbf",
+        "value": " brother",
+        "prev_token": 83,
+        "next_tokens": [
+          85
+        ],
+        "metric_value": 4.363059997558594e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "85": {
+        "id": "b0d6b411-9ad2-4d36-8f3e-e333dc4b41d1",
+        "value": ".",
+        "prev_token": 84,
+        "next_tokens": [
+          86
+        ],
+        "metric_value": 0.1259765625,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "86": {
+        "id": "c8f5649a-3d1c-489e-9a2f-db097a53d7fa",
+        "value": " So",
+        "prev_token": 85,
+        "next_tokens": [
+          87
+        ],
+        "metric_value": 0.2490234375,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "87": {
+        "id": "abda6bed-f657-4e4d-91b1-a0334ba1862f",
+        "value": ",",
+        "prev_token": 86,
+        "next_tokens": [
+          88
+        ],
+        "metric_value": 0.0172119140625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "88": {
+        "id": "fe0f06c4-b758-49df-9c95-6e6273d04997",
+        "value": " the",
+        "prev_token": 87,
+        "next_tokens": [
+          89
+        ],
+        "metric_value": 0.004608154296875,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "89": {
+        "id": "2e2d92ed-ed3d-4dec-87d3-252d078300f0",
+        "value": " total",
+        "prev_token": 88,
+        "next_tokens": [
+          90
+        ],
+        "metric_value": 1.1265277862548828e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "90": {
+        "id": "b178ceef-518d-48ed-a6ac-0e418dc22a13",
+        "value": " number",
+        "prev_token": 89,
+        "next_tokens": [
+          91
+        ],
+        "metric_value": 1.0073184967041016e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "91": {
+        "id": "521399aa-207e-4380-aad6-b7e67a6f6e70",
+        "value": " of",
+        "prev_token": 90,
+        "next_tokens": [
+          92
+        ],
+        "metric_value": 8.940696716308594e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "92": {
+        "id": "d3270e31-7189-49ef-ad85-1ab725f92d55",
+        "value": " sacks",
+        "prev_token": 91,
+        "next_tokens": [
+          93
+        ],
+        "metric_value": 0.001739501953125,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "93": {
+        "id": "e44f090f-6a8d-49f0-b0ea-83749beaa145",
+        "value": " given",
+        "prev_token": 92,
+        "next_tokens": [
+          94
+        ],
+        "metric_value": 0.00081634521484375,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "94": {
+        "id": "6bfcee69-cac9-4772-a7c0-08d57599b56f",
+        "value": " away",
+        "prev_token": 93,
+        "next_tokens": [
+          95
+        ],
+        "metric_value": 0.0004215240478515625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "95": {
+        "id": "41fdb6da-0efa-45c1-9000-2e422e086e15",
+        "value": " is",
+        "prev_token": 94,
+        "next_tokens": [
+          96
+        ],
+        "metric_value": 3.2782554626464844e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "96": {
+        "id": "61e09bde-9cf5-4c46-869d-13a6fce66fb4",
+        "value": ":\n",
+        "prev_token": 95,
+        "next_tokens": [
+          97
+        ],
+        "metric_value": 0.004608154296875,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "97": {
+        "id": "ebb0d8be-bb7c-41f2-9f65-dbd730b1cfe0",
+        "value": "\\[",
+        "prev_token": 96,
+        "next_tokens": [
+          98
+        ],
+        "metric_value": 0.005767822265625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "98": {
+        "id": "a0ead34f-a879-4717-8d16-41c81201ef65",
+        "value": " ",
+        "prev_token": 97,
+        "next_tokens": [
+          99
+        ],
+        "metric_value": 0.06591796875,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "99": {
+        "id": "a0635816-0ceb-407f-9448-b2d05f767427",
+        "value": "3",
+        "prev_token": 98,
+        "next_tokens": [
+          100
+        ],
+        "metric_value": 1.6670674085617065e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "100": {
+        "id": "e7f73e5e-3e39-4d7d-abb1-2a0b1000409d",
+        "value": " +",
+        "prev_token": 99,
+        "next_tokens": [
+          101
+        ],
+        "metric_value": 0.00017547607421875,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "101": {
+        "id": "46a0b6c0-50e9-4b43-a528-ece492eba8a1",
+        "value": " ",
+        "prev_token": 100,
+        "next_tokens": [
+          102
+        ],
+        "metric_value": 1.811713445931673e-09,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "102": {
+        "id": "12e1e35c-81b5-4ee2-b953-4917794155b0",
+        "value": "4",
+        "prev_token": 101,
+        "next_tokens": [
+          103
+        ],
+        "metric_value": 5.662441253662109e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "103": {
+        "id": "52ce7fdf-b74f-4e73-ac5c-52f58abd6456",
+        "value": " =",
+        "prev_token": 102,
+        "next_tokens": [
+          104
+        ],
+        "metric_value": 2.9336661100387573e-08,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "104": {
+        "id": "209c8049-4a88-4b43-83b8-32e2ea017303",
+        "value": " ",
+        "prev_token": 103,
+        "next_tokens": [
+          105
+        ],
+        "metric_value": 1.520675141364336e-09,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "105": {
+        "id": "090354a2-8eaa-4618-bab1-5061335cd848",
+        "value": "7",
+        "prev_token": 104,
+        "next_tokens": [
+          106
+        ],
+        "metric_value": 2.8870999813079834e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "106": {
+        "id": "3300283b-61cf-483d-ada0-2fc8ef8e3979",
+        "value": " \\",
+        "prev_token": 105,
+        "next_tokens": [
+          107
+        ],
+        "metric_value": 9.357929229736328e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "107": {
+        "id": "b3952bd4-2fbe-40a9-93bb-cafd725b4ad3",
+        "value": "text",
+        "prev_token": 106,
+        "next_tokens": [
+          108
+        ],
+        "metric_value": 0.314453125,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "108": {
+        "id": "5ef719f9-24af-457d-b474-f0fdb34f9f9f",
+        "value": "{",
+        "prev_token": 107,
+        "next_tokens": [
+          109
+        ],
+        "metric_value": 8.106231689453125e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "109": {
+        "id": "8e512318-94fa-4f93-87fe-40af5cac0972",
+        "value": " sacks",
+        "prev_token": 108,
+        "next_tokens": [
+          110
+        ],
+        "metric_value": 0.0022125244140625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "110": {
+        "id": "43c56b0c-1644-458e-9669-b02fa08fd7ed",
+        "value": "}",
+        "prev_token": 109,
+        "next_tokens": [
+          111
+        ],
+        "metric_value": 1.1026859283447266e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "111": {
+        "id": "77f8b7a3-ba33-4075-ad51-e405b4fa7a54",
+        "value": " \\",
+        "prev_token": 110,
+        "next_tokens": [
+          112
+        ],
+        "metric_value": 2.1010637283325195e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "112": {
+        "id": "e47168e5-6c4e-4715-ba2d-b4618b738161",
+        "value": "]\n\n",
+        "prev_token": 111,
+        "next_tokens": [
+          113
+        ],
+        "metric_value": 8.67992639541626e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "113": {
+        "id": "efdb78cf-83a1-47f9-b4d2-ddca437d6805",
+        "value": "Next",
+        "prev_token": 112,
+        "next_tokens": [
+          114
+        ],
+        "metric_value": 0.0001277923583984375,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "114": {
+        "id": "74e819b1-f096-418d-885a-56c2d67101b0",
+        "value": ",",
+        "prev_token": 113,
+        "next_tokens": [
+          115
+        ],
+        "metric_value": 2.384185791015625e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "115": {
+        "id": "581e198d-6900-436a-a70e-e38c26a60902",
+        "value": " we",
+        "prev_token": 114,
+        "next_tokens": [
+          116
+        ],
+        "metric_value": 0.004486083984375,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "116": {
+        "id": "6d58a2d2-d8f6-409b-ac80-16a228399463",
+        "value": " know",
+        "prev_token": 115,
+        "next_tokens": [
+          117
+        ],
+        "metric_value": 0.58203125,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "117": {
+        "id": "666e6458-fba7-45fa-a606-ad0cff008768",
+        "value": " that",
+        "prev_token": 116,
+        "next_tokens": [
+          118
+        ],
+        "metric_value": 3.7670135498046875e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "118": {
+        "id": "82e9e8e1-3dcf-4bc1-9c3c-66540e88e2d1",
+        "value": " each",
+        "prev_token": 117,
+        "next_tokens": [
+          119
+        ],
+        "metric_value": 5.5789947509765625e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "119": {
+        "id": "809a3d2d-1dae-4160-b862-8eb5171a8c81",
+        "value": " sack",
+        "prev_token": 118,
+        "next_tokens": [
+          120
+        ],
+        "metric_value": 0.0123291015625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "120": {
+        "id": "00a5eafb-fa6d-427d-98b3-57913ae57137",
+        "value": " contains",
+        "prev_token": 119,
+        "next_tokens": [
+          121
+        ],
+        "metric_value": 0.018798828125,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "121": {
+        "id": "8163a7be-e3ac-4b88-9067-08bae324ab4c",
+        "value": " ",
+        "prev_token": 120,
+        "next_tokens": [
+          122
+        ],
+        "metric_value": 5.634501576423645e-08,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "122": {
+        "id": "4c8d6644-2bd8-4118-8e39-2d99e7d351be",
+        "value": "2",
+        "prev_token": 121,
+        "next_tokens": [
+          123
+        ],
+        "metric_value": 7.343292236328125e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "123": {
+        "id": "7b42073b-6579-4c1b-8a0b-03620287faaa",
+        "value": "5",
+        "prev_token": 122,
+        "next_tokens": [
+          124
+        ],
+        "metric_value": 1.0710209608078003e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "124": {
+        "id": "1ff388e0-bd1a-452c-82a1-f5b4032c1164",
+        "value": " kilograms",
+        "prev_token": 123,
+        "next_tokens": [
+          125
+        ],
+        "metric_value": 0.0025482177734375,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "125": {
+        "id": "ee3199d0-ec7a-4c05-b46a-d43f52d85fce",
+        "value": " of",
+        "prev_token": 124,
+        "next_tokens": [
+          126
+        ],
+        "metric_value": 5.513429641723633e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "126": {
+        "id": "ea385a84-24c2-459a-854e-05db7a9ca43a",
+        "value": " rice",
+        "prev_token": 125,
+        "next_tokens": [
+          127
+        ],
+        "metric_value": 4.363059997558594e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "127": {
+        "id": "755b1657-246d-485d-b0f0-da3bb86c1c56",
+        "value": ".",
+        "prev_token": 126,
+        "next_tokens": [
+          128
+        ],
+        "metric_value": 1.055002212524414e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "128": {
+        "id": "ece1798c-e9b2-49d4-920d-c81d225fe9a1",
+        "value": " Therefore",
+        "prev_token": 127,
+        "next_tokens": [
+          129
+        ],
+        "metric_value": 0.01275634765625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "129": {
+        "id": "3978d731-38af-4f03-af79-ec91a53f218c",
+        "value": ",",
+        "prev_token": 128,
+        "next_tokens": [
+          130
+        ],
+        "metric_value": 2.6635825634002686e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "130": {
+        "id": "ad20fe1d-9117-4e59-a689-c15aa2cb9b92",
+        "value": " the",
+        "prev_token": 129,
+        "next_tokens": [
+          131
+        ],
+        "metric_value": 0.009765625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "131": {
+        "id": "40167883-a3a1-49ca-b7a5-89f2b2817d36",
+        "value": " total",
+        "prev_token": 130,
+        "next_tokens": [
+          132
+        ],
+        "metric_value": 8.344650268554688e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "132": {
+        "id": "f924faf5-d9df-4329-8da3-e2b1c5367e36",
+        "value": " weight",
+        "prev_token": 131,
+        "next_tokens": [
+          133
+        ],
+        "metric_value": 0.0279541015625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "133": {
+        "id": "9fae8003-0ed0-4cbe-8240-49470c98165a",
+        "value": " of",
+        "prev_token": 132,
+        "next_tokens": [
+          134
+        ],
+        "metric_value": 1.648440957069397e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "134": {
+        "id": "943ef77b-46c5-48d9-9786-e7029e7e0f18",
+        "value": " the",
+        "prev_token": 133,
+        "next_tokens": [
+          135
+        ],
+        "metric_value": 0.53125,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "135": {
+        "id": "08920515-5986-4417-a4f6-44ee97cdef0c",
+        "value": " rice",
+        "prev_token": 134,
+        "next_tokens": [
+          136
+        ],
+        "metric_value": 0.0042724609375,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "136": {
+        "id": "180060f2-fe57-4d96-865b-0b4c21ccb48b",
+        "value": " given",
+        "prev_token": 135,
+        "next_tokens": [
+          137
+        ],
+        "metric_value": 0.009521484375,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "137": {
+        "id": "35fb0314-5d4b-4c4f-ad46-7285ca9a3bf7",
+        "value": " away",
+        "prev_token": 136,
+        "next_tokens": [
+          138
+        ],
+        "metric_value": 0.29296875,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "138": {
+        "id": "efcba710-0c9d-4fab-a59b-61a13f059775",
+        "value": " is",
+        "prev_token": 137,
+        "next_tokens": [
+          139
+        ],
+        "metric_value": 1.5497207641601562e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "139": {
+        "id": "ad9e9f58-00e8-4e49-9319-b578f14e1689",
+        "value": ":\n",
+        "prev_token": 138,
+        "next_tokens": [
+          140
+        ],
+        "metric_value": 3.0994415283203125e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "140": {
+        "id": "02fd393c-123c-45e1-b3d2-d3fe2629cf15",
+        "value": "\\[",
+        "prev_token": 139,
+        "next_tokens": [
+          141
+        ],
+        "metric_value": 4.516914486885071e-08,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "141": {
+        "id": "57da6cf6-f4b9-4a8d-8426-593deac298ec",
+        "value": " ",
+        "prev_token": 140,
+        "next_tokens": [
+          142
+        ],
+        "metric_value": 1.3504177331924438e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "142": {
+        "id": "528d76be-2e5a-42be-8067-0e2360fa6775",
+        "value": "7",
+        "prev_token": 141,
+        "next_tokens": [
+          143
+        ],
+        "metric_value": 1.4808028936386108e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "143": {
+        "id": "48af909e-f0d2-4d96-b39e-bfd793df3bf9",
+        "value": " \\",
+        "prev_token": 142,
+        "next_tokens": [
+          144
+        ],
+        "metric_value": 2.4028122425079346e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "144": {
+        "id": "9dbb2740-6ed2-4c94-adb0-ded26c8d6a33",
+        "value": "text",
+        "prev_token": 143,
+        "next_tokens": [
+          145
+        ],
+        "metric_value": 0.000713348388671875,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "145": {
+        "id": "f569523a-e0cc-403d-925e-5b8b46619880",
+        "value": "{",
+        "prev_token": 144,
+        "next_tokens": [
+          146
+        ],
+        "metric_value": 2.8461217880249023e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "146": {
+        "id": "c58577f2-eb34-4921-ab21-053189d6386b",
+        "value": " sacks",
+        "prev_token": 145,
+        "next_tokens": [
+          147
+        ],
+        "metric_value": 0.0033721923828125,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "147": {
+        "id": "2e757b85-b2b8-4959-8c20-1dbeb6924bcb",
+        "value": "}",
+        "prev_token": 146,
+        "next_tokens": [
+          148
+        ],
+        "metric_value": 3.557652235031128e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "148": {
+        "id": "dfd2014f-436e-4d6e-a155-0bd37c4b9161",
+        "value": " \\",
+        "prev_token": 147,
+        "next_tokens": [
+          149
+        ],
+        "metric_value": 1.8030405044555664e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "149": {
+        "id": "3a498725-3cd7-4aec-ac7f-b656ef64907c",
+        "value": "times",
+        "prev_token": 148,
+        "next_tokens": [
+          150
+        ],
+        "metric_value": 3.9301812648773193e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "150": {
+        "id": "ead93db0-15c7-4d41-a0ef-080d1fd78cf0",
+        "value": " ",
+        "prev_token": 149,
+        "next_tokens": [
+          151
+        ],
+        "metric_value": 2.0605511963367462e-08,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "151": {
+        "id": "f70cd1ce-28b8-4519-80d2-2a5a5f1bef2d",
+        "value": "2",
+        "prev_token": 150,
+        "next_tokens": [
+          152
+        ],
+        "metric_value": 9.34600830078125e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "152": {
+        "id": "2207fb7d-b485-404c-a010-cd7dddeb0131",
+        "value": "5",
+        "prev_token": 151,
+        "next_tokens": [
+          153
+        ],
+        "metric_value": 4.947185516357422e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "153": {
+        "id": "8f3038d9-8216-43a4-b3f6-07913ddba4a7",
+        "value": " \\",
+        "prev_token": 152,
+        "next_tokens": [
+          154
+        ],
+        "metric_value": 3.520399332046509e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "154": {
+        "id": "7847e7b5-92e3-4df7-a567-56a343bc5a52",
+        "value": "text",
+        "prev_token": 153,
+        "next_tokens": [
+          155
+        ],
+        "metric_value": 2.7120113372802734e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "155": {
+        "id": "f3a2fa47-b5c3-4d18-aac7-fedafdeab8a8",
+        "value": "{",
+        "prev_token": 154,
+        "next_tokens": [
+          156
+        ],
+        "metric_value": 1.4901161193847656e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "156": {
+        "id": "65d3ae5d-b6f3-4c56-8ce8-c6025c7a9fcb",
+        "value": " kilograms",
+        "prev_token": 155,
+        "next_tokens": [
+          157
+        ],
+        "metric_value": 0.5078125,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "157": {
+        "id": "bd8f522f-abb3-49dd-bd25-bb6dc8fa3cf4",
+        "value": " per",
+        "prev_token": 156,
+        "next_tokens": [
+          158
+        ],
+        "metric_value": 0.55859375,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "158": {
+        "id": "c1c40c9d-1578-47ba-a09f-791135317a0d",
+        "value": " sack",
+        "prev_token": 157,
+        "next_tokens": [
+          159
+        ],
+        "metric_value": 0.0126953125,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "159": {
+        "id": "f4976a98-ac5f-4cd4-9131-2922438f175b",
+        "value": "}",
+        "prev_token": 158,
+        "next_tokens": [
+          160
+        ],
+        "metric_value": 3.888271749019623e-08,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "160": {
+        "id": "7a750ef1-9208-4be1-b3e0-aac71e7138a1",
+        "value": " =",
+        "prev_token": 159,
+        "next_tokens": [
+          161
+        ],
+        "metric_value": 5.75091689825058e-08,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "161": {
+        "id": "5a7cf977-6e85-45ec-91a2-d43ac2623371",
+        "value": " ",
+        "prev_token": 160,
+        "next_tokens": [
+          162
+        ],
+        "metric_value": 9.138602763414383e-09,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "162": {
+        "id": "d9993e61-f442-4074-a5b7-1ee71eff64a0",
+        "value": "1",
+        "prev_token": 161,
+        "next_tokens": [
+          163
+        ],
+        "metric_value": 4.1425228118896484e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "163": {
+        "id": "250e2999-246a-4b34-8e67-1a7aad2f34e4",
+        "value": "7",
+        "prev_token": 162,
+        "next_tokens": [
+          164
+        ],
+        "metric_value": 5.662441253662109e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "164": {
+        "id": "c8b3fbf4-cab3-4d66-8e4d-1c54473a5937",
+        "value": "5",
+        "prev_token": 163,
+        "next_tokens": [
+          165
+        ],
+        "metric_value": 2.1141022443771362e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "165": {
+        "id": "f60ca829-7887-47c9-8252-f80e4a7b9e95",
+        "value": " \\",
+        "prev_token": 164,
+        "next_tokens": [
+          166
+        ],
+        "metric_value": 2.293381839990616e-08,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "166": {
+        "id": "9666d88c-35b2-4ef8-bd10-3fb3fda5d89f",
+        "value": "text",
+        "prev_token": 165,
+        "next_tokens": [
+          167
+        ],
+        "metric_value": 5.471520125865936e-08,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "167": {
+        "id": "0c997f25-dda9-42c5-9d63-eaa07f9aadb5",
+        "value": "{",
+        "prev_token": 166,
+        "next_tokens": [
+          168
+        ],
+        "metric_value": 3.159046173095703e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "168": {
+        "id": "57c1fd63-36d0-4752-a008-fa23460ef9d8",
+        "value": " kilograms",
+        "prev_token": 167,
+        "next_tokens": [
+          169
+        ],
+        "metric_value": 0.00020694732666015625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "169": {
+        "id": "44c338db-946b-4f3a-bd4a-c226eaf4e69d",
+        "value": "}",
+        "prev_token": 168,
+        "next_tokens": [
+          170
+        ],
+        "metric_value": 6.48200511932373e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "170": {
+        "id": "212ddfb3-2333-4933-bd1b-1d5e31d12dd9",
+        "value": " \\",
+        "prev_token": 169,
+        "next_tokens": [
+          171
+        ],
+        "metric_value": 2.0023435354232788e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "171": {
+        "id": "5929a9ed-49b8-4fac-8676-7851b2edc773",
+        "value": "]\n\n",
+        "prev_token": 170,
+        "next_tokens": [
+          172
+        ],
+        "metric_value": 1.5795230865478516e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "172": {
+        "id": "c688937a-70f3-43d7-94a5-38a7aa0ae127",
+        "value": "So",
+        "prev_token": 171,
+        "next_tokens": [
+          173
+        ],
+        "metric_value": 0.248046875,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "173": {
+        "id": "875148b7-7918-4965-b99e-e74ec024c42e",
+        "value": ",",
+        "prev_token": 172,
+        "next_tokens": [
+          174
+        ],
+        "metric_value": 8.242204785346985e-08,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "174": {
+        "id": "1e9faa15-7744-49ac-8117-cde50e4413ed",
+        "value": " the",
+        "prev_token": 173,
+        "next_tokens": [
+          175
+        ],
+        "metric_value": 0.005340576171875,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "175": {
+        "id": "e9b77677-8f05-49d6-82c9-6a7dcbe9736a",
+        "value": " total",
+        "prev_token": 174,
+        "next_tokens": [
+          176
+        ],
+        "metric_value": 0.00167083740234375,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "176": {
+        "id": "ac5ab570-e603-429b-bc30-677412b0acf3",
+        "value": " kilograms",
+        "prev_token": 175,
+        "next_tokens": [
+          177
+        ],
+        "metric_value": 0.9765625,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "177": {
+        "id": "2644702c-d9f0-4d6d-8833-c21474720b10",
+        "value": " of",
+        "prev_token": 176,
+        "next_tokens": [
+          178
+        ],
+        "metric_value": 7.450580596923828e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "178": {
+        "id": "be47cbfd-44e8-4496-877a-8d83d4190419",
+        "value": " rice",
+        "prev_token": 177,
+        "next_tokens": [
+          179
+        ],
+        "metric_value": 4.7206878662109375e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "179": {
+        "id": "b1f98db3-abfe-41ec-9f74-432c2765e545",
+        "value": " Gold",
+        "prev_token": 178,
+        "next_tokens": [
+          180
+        ],
+        "metric_value": 0.3515625,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "180": {
+        "id": "4ab725ec-ede7-4c41-b0fd-35d38695a12d",
+        "value": "y",
+        "prev_token": 179,
+        "next_tokens": [
+          181
+        ],
+        "metric_value": 8.404254913330078e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "181": {
+        "id": "c3f19755-c8bf-4285-ad4b-4ff4a9f9bdb7",
+        "value": " gave",
+        "prev_token": 180,
+        "next_tokens": [
+          182
+        ],
+        "metric_value": 0.00011777877807617188,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "182": {
+        "id": "5b8aaa66-5131-4a9f-87a1-8c01c401a086",
+        "value": " to",
+        "prev_token": 181,
+        "next_tokens": [
+          183
+        ],
+        "metric_value": 3.3676624298095703e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "183": {
+        "id": "029f230a-8c66-4c9e-834d-8606cc43a73b",
+        "value": " her",
+        "prev_token": 182,
+        "next_tokens": [
+          184
+        ],
+        "metric_value": 1.3709068298339844e-06,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "184": {
+        "id": "2dd98e1b-42b6-4544-893a-b13612dd47be",
+        "value": " cousin",
+        "prev_token": 183,
+        "next_tokens": [
+          185
+        ],
+        "metric_value": 0.001312255859375,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "185": {
+        "id": "47e2eed5-d154-4076-911a-4318bcaa2f41",
+        "value": " and",
+        "prev_token": 184,
+        "next_tokens": [
+          186
+        ],
+        "metric_value": 7.078051567077637e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "186": {
+        "id": "884fc7f4-38c3-44e0-a41f-4b3a7058b3e9",
+        "value": " brother",
+        "prev_token": 185,
+        "next_tokens": [
+          187
+        ],
+        "metric_value": 0.00070953369140625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "187": {
+        "id": "b9967269-9daf-4cb7-a9e0-ac0ef87bc841",
+        "value": " is",
+        "prev_token": 186,
+        "next_tokens": [
+          188
+        ],
+        "metric_value": 0.00052642822265625,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "188": {
+        "id": "d70a19b6-d7fe-4f93-8610-37d3cb978fb7",
+        "value": ":\n",
+        "prev_token": 187,
+        "next_tokens": [
+          189
+        ],
+        "metric_value": 0.3671875,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "189": {
+        "id": "05f8b36b-6e03-4967-8263-1e8200304bb9",
+        "value": "\\",
+        "prev_token": 188,
+        "next_tokens": [
+          190
+        ],
+        "metric_value": 0.62890625,
+        "is_forking_token": true,
+        "part_of_response": true
+      },
+      "190": {
+        "id": "12a155d7-2962-4018-b867-ae9299025078",
+        "value": "[\n",
+        "prev_token": 189,
+        "next_tokens": [
+          191
+        ],
+        "metric_value": 0.00048065185546875,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "191": {
+        "id": "c7aef63e-2bde-4be9-b6b5-ee8a100d526c",
+        "value": "\\",
+        "prev_token": 190,
+        "next_tokens": [
+          192
+        ],
+        "metric_value": 6.668269634246826e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "192": {
+        "id": "f544b0fe-0e13-4b3a-a012-70ed3b253beb",
+        "value": "boxed",
+        "prev_token": 191,
+        "next_tokens": [
+          193
+        ],
+        "metric_value": 5.029141902923584e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "193": {
+        "id": "24071345-920f-4ba8-a51d-6dde2c7367fc",
+        "value": "{",
+        "prev_token": 192,
+        "next_tokens": [
+          194
+        ],
+        "metric_value": 6.51925802230835e-08,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "194": {
+        "id": "529d97dc-9165-4f42-be18-89cb2947537d",
+        "value": "1",
+        "prev_token": 193,
+        "next_tokens": [
+          195
+        ],
+        "metric_value": 4.7497451305389404e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "195": {
+        "id": "234f661c-1692-42a7-846d-1eac5fda2f1e",
+        "value": "7",
+        "prev_token": 194,
+        "next_tokens": [
+          196
+        ],
+        "metric_value": 1.3131648302078247e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "196": {
+        "id": "2128b97f-0e3b-408f-95a2-8d2e723c0c31",
+        "value": "5",
+        "prev_token": 195,
+        "next_tokens": [
+          197
+        ],
+        "metric_value": 1.1222437024116516e-07,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "197": {
+        "id": "e95672c5-c6fb-476a-a7fe-61139084e655",
+        "value": "}\n",
+        "prev_token": 196,
+        "next_tokens": [
+          198
+        ],
+        "metric_value": 2.014636993408203e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "198": {
+        "id": "bc247f26-f62d-4443-86e4-fe5bcfb82fb6",
+        "value": "\\",
+        "prev_token": 197,
+        "next_tokens": [
+          199
+        ],
+        "metric_value": 3.790855407714844e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "199": {
+        "id": "df18e436-942e-4a4a-9e66-c9ea7050798e",
+        "value": "]",
+        "prev_token": 198,
+        "next_tokens": [
+          200
+        ],
+        "metric_value": 9.870529174804688e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      },
+      "200": {
+        "id": "3a68267a-2813-43f2-95b9-7bd8ec6a2ebc",
+        "value": "<|im_end|>",
+        "prev_token": 199,
+        "next_tokens": [],
+        "metric_value": 2.181529998779297e-05,
+        "is_forking_token": false,
+        "part_of_response": true
+      }
+    }
+  }
+}
