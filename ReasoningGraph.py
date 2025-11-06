@@ -5,7 +5,7 @@ from pathlib import Path
 from Token import Token
 
 class ReasoningGraph():
-    def __init__(self, tokenizer, metric='entropy', branch_percent=0.2):
+    def __init__(self, tokenizer, metric='entropy', branch_percent=0.2, max_initial_nodes=5, branch_per_level=2):
         self.metric = metric
         self.metric_values = []
         self.probabilities = []
@@ -14,10 +14,22 @@ class ReasoningGraph():
         self.tokenizer = tokenizer
         
         self.branch_percent = branch_percent
+        self.max_initial_nodes = max_initial_nodes
         self.metric_threshold = float('inf') # So none will be above this
+        self.branch_per_level = branch_per_level
         
         self.curr_token = None
         self.first_token = None
+        self.forking_depth = 0
+
+        # So we can create the graph after 
+        self.input_ids = None
+        self.logits_processor = None 
+        self.stopping_criteria = None 
+        self.generation_config = None 
+        self.max_len = None
+        self.model_kwargs = None
+
 
     # Clear all of the saved metrics
     def zero_metrics(self):
@@ -116,6 +128,9 @@ class ReasoningGraph():
         wanted_idx = int(self.branch_percent * len(sorted_metrics)) - 1
         wanted_idx = max(0, min(wanted_idx, len(sorted_metrics) - 1))
 
+        # Making sure it doesn't create too many nodes
+        wanted_idx = min(self.max_initial_nodes-1, wanted_idx)
+
         # Preventing 0 entropy at cutoff
         while sorted_metrics[wanted_idx] <= 0:
             wanted_idx -= 1
@@ -125,13 +140,18 @@ class ReasoningGraph():
     # Turns the nodes into the first graph
     def _build_graph_from_generation(self, output_ids):
         for output_id, metric_value in zip(output_ids, self.metric_values):
+
+            is_forking = metric_value >= self.metric_threshold
+
+            if is_forking:
+                self.forking_depth += 1
             
             token = Token(
                 token_id=output_id.item(),
                 value=self.tokenizer.decode(output_id),
-                metric='entropy',
+                metric=self.metric,
                 metric_value=metric_value,
-                is_forking_token=(metric_value >= self.metric_threshold),
+                is_forking_token=is_forking,
                 part_of_response=True
             )
 
@@ -146,6 +166,98 @@ class ReasoningGraph():
 
             # then, `token` becomes the `curr_token` for the next token
             self.curr_token = token
+
+    # Removes the last token from the KV cache
+    def _remove_KV_cache(self, model):
+        new_len = self.input_ids.shape[1]
+        device = self.input_ids.device
+        bsz = self.input_ids.size(0)
+
+        # start clean
+        self.model_kwargs = {}
+
+        # rebuild attention mask
+        self.model_kwargs["attention_mask"] = torch.ones(
+            (bsz, new_len), dtype=torch.long, device=device
+        )
+
+        # for models that use these
+        self.model_kwargs["position_ids"] = torch.arange(0, new_len, device=device).unsqueeze(0)
+        self.model_kwargs["cache_position"] = torch.arange(0, new_len, device=device)
+
+        # initialize model-internal cache position bookkeeping
+        self.model_kwargs = model._get_initial_cache_position(
+            new_len, device, self.model_kwargs
+        )
+
+    # Backtracking to create the full graph structure
+    def build_full_graph(self, model):
+        if self.curr_token is None:
+            print("Please generate tokens before creating the graph")
+            return
+
+        print('')
+        print('Starting full graph creation')
+
+        backward = True
+        with torch.inference_mode():
+            # Keep going until it has backtracked all the way
+            while (self.curr_token is not self.first_token) or (self.first_token.is_forking_token and len(self.first_token.next_tokens) < self.branch_per_level):
+                # Need to change if we're going forward or backward in the search
+                if backward:
+                    # Sample and go down this path
+                    if self.curr_token.is_forking_token and len(self.curr_token.next_tokens) < self.branch_per_level:
+                        self._remove_KV_cache(model)
+                        backward = False
+
+                        # Trying to stop the min length being set
+                        self.generation_config.min_length = 0
+                        self.generation_config.min_new_tokens = 0
+                        
+                        print(f'Exploring at depth: {self.forking_depth}')
+
+                    # Move up the graph
+                    else:
+                        # Tracking where in the graph
+                        if self.curr_token.is_forking_token:
+                            self.forking_depth -= 1
+
+                        # Reduce the length of the tokens
+                        new_len = self.input_ids.shape[1] - 1
+                        self.input_ids = self.input_ids[:, :new_len]
+                        self.curr_token = self.curr_token.prev_token
+                else:
+                    # Generate a token
+                    next_tokens, step_metric, probs, next_token_scores, self.model_kwargs = self._generate_single_token(model, self.input_ids, self.logits_processor, self.generation_config, **self.model_kwargs)
+                        
+                    metric_value = step_metric.detach().to(torch.float32).squeeze().cpu().item()
+
+                    # Append token
+                    self.input_ids = torch.cat([self.input_ids, next_tokens], dim=-1)
+
+                    is_forking = metric_value >= self.metric_threshold
+
+                    if is_forking:
+                        self.forking_depth += 1
+
+                    token = Token(
+                        token_id=next_tokens.item(),
+                        value=self.tokenizer.decode(int(next_tokens.item())),
+                        metric=self.metric,
+                        metric_value=metric_value,
+                        is_forking_token=(metric_value >= self.metric_threshold),
+                        part_of_response=True
+                    )
+
+                    self.curr_token.add_next_token(token)
+                    token.add_prev_token(self.curr_token)
+                    self.curr_token = token
+
+                    # Stop condition
+                    if self.stopping_criteria(self.input_ids, None) or self.input_ids.shape[1] >= self.max_len:
+                        backward = True
+
+        print('Done building the full graph')
     
     # Get sequence of tokens ultimately used for response
     def _get_token_sequence(self):
@@ -381,5 +493,13 @@ class ReasoningGraph():
 
         # Build graph based on generated sequence
         self._build_graph_from_generation(output_ids[0][start_len:])
+
+        # Saving for the graph creation
+        self.input_ids = output_ids
+        self.logits_processor = logits_processor 
+        self.stopping_criteria = stopping_criteria
+        self.generation_config = generation_config
+        self.max_len = max_len
+        self.model_kwargs = model_kwargs
         
         return output_ids

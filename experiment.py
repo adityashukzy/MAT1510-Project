@@ -15,9 +15,10 @@ class Experiment:
         self.config = None
         self.base_dir = None
         self.results = None
+        self.full_graph = False
         self.experiment_file = {}
         
-    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature):
+    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature, full_graph=False):
         """Create directory structure for new experiment."""
         
         # Build new experiment config
@@ -29,11 +30,13 @@ class Experiment:
             "num_problems": len(self.problems),
             "num_rollouts": num_rollouts,
             "temperature": temperature,
+            "full_graph": full_graph,
             "timestamp": self.timestamp
         }
         self.base_dir = Path("experiments") / f"experiment_{self.timestamp}"
         self.base_dir.mkdir(parents=True, exist_ok=True)
         self.results = []
+        self.full_graph = True
 
         # Save experiment config
         self.experiment_file["config"] = self.config
@@ -71,6 +74,7 @@ class Experiment:
         self.config = self.experiment_file.get("config", {})
         self.timestamp = self.config.get("timestamp")
         self.results = self.experiment_file.get("results", {})
+        self.full_graph = self.experiment_file.get("full_graph", {})
         self.problems = self.experiment_file.get("problems", {})
 
         print(f"Loaded existing experiment from: {self.base_dir}")
@@ -162,6 +166,9 @@ class Experiment:
                 'logits': logits_list,  # List of logits (vocab_size each)
                 'num_tokens': len(generator.metric_values)
             }
+
+            if self.full_graph:
+                generator.build_full_graph(model)
             
             # Save rollout in self.results
             self._save_rollout(problem_idx, rollout_idx, generator, rollout_data)
