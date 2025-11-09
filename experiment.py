@@ -152,7 +152,7 @@ class Experiment:
             # Store rollout data with all computed values
             rollout_data = {
                 'rollout_idx': rollout_idx,
-                'dataset_index': problem['index'],  # Store actual GSM8K dataset index
+                'dataset_index': problem['index'],
                 'input_text': input_text,
                 'output_text': output_text,
                 'decoded_tokens': decoded_tokens,

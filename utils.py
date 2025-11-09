@@ -40,19 +40,27 @@ def extract_answer(text):
 
     return None
 
-def load_problems_from_dataset(dataset='openai/gsm8k', num_problems=10, split='test', seed=None):
+def load_problems_from_dataset(dataset_name='openai/gsm8k', num_problems=10, split='test', seed=None):
     """Load a subset of problems from the provided dataset.
     
     Args:
-        dataset: Name of HuggingFace dataset from which to sample problems
+        dataset_name: Name of HuggingFace dataset from which to sample problems
         num_problems: Number of problems to sample
         split: Dataset split ('train' or 'test')
         seed: Random seed for reproducibility. If None, sampling will be truly random.
     """
     
-    print(f"Loading {num_problems} problems from {dataset}:{split}")
+    print(f"Loading {num_problems} problems from {dataset_name}:{split}")
     
-    dataset = load_dataset(dataset)
+    if dataset_name == 'openai/gsm8k':
+        dataset = load_dataset(dataset_name, "main")
+    elif dataset_name == 'HuggingFaceH4/MATH-500':
+        dataset = load_dataset(dataset_name, "default")
+    elif dataset_name == 'math-ai/aime25':
+        dataset = load_dataset(dataset_name)
+    else:
+        dataset = load_dataset(dataset_name)
+    
     dataset = dataset[split]
     
     # Only set seed if one is provided
@@ -75,17 +83,38 @@ def load_problems_from_dataset(dataset='openai/gsm8k', num_problems=10, split='t
     problems = []
     for idx in indices:
         item = dataset[idx]
-        # Extract ground truth answer from GSM8K format (after ####)
-        gt_match = re.search(r'####\s*(-?\d+(?:\.\d+)?)', item['answer'])
-        ground_truth = float(gt_match.group(1)) if gt_match else None
 
-        # Determine which key to use for the question text
-        question_key = 'question' if 'question' in item else 'problem'
+        print(item)
+
+        # Find the question key for the problem
+        if dataset_name in ['openai/gsm8k']:
+            question_key = 'question'
+        elif dataset_name in ['HuggingFaceH4/MATH-500', 'math-ai/aime25']:
+            question_key = 'problem'
+        else:
+            question_key = 'problem' if 'problem' in item else None
+        
+        # Find the solution key for the problem
+        if dataset_name in ['openai/gsm8k', 'math-ai/aime25']:
+            solution_key = 'answer'
+        elif dataset_name in ['HuggingFaceH4/MATH-500']:
+            solution_key = 'solution'
+        else:
+            solution_key = 'solution' if 'solution' in item else None
+        
+        # Find the ground truth for the problem
+        if dataset_name in ['openai/gsm8k']:
+            gt_match = re.search(r'####\s*(-?\d+(?:\.\d+)?)', item['answer'])
+            ground_truth = float(gt_match.group(1)) if gt_match else None
+        elif dataset_name in ['HuggingFaceH4/MATH-500', 'math-ai/aime25']:
+            ground_truth = item['answer']
+        else:
+            ground_truth = item.get('answer' if 'answer' in item else None)
 
         problems.append({
             'index': idx,
-            'question': item[question_key],
-            'full_answer': item['answer'],
+            'question': item.get(question_key),
+            'full_answer': item.get(solution_key),
             'ground_truth': ground_truth
         })
 
