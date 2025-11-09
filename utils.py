@@ -1,6 +1,9 @@
 import re
 import random
 import numpy as np
+import zipfile
+from pathlib import Path
+from datetime import datetime
 from IPython.display import HTML
 from datasets import load_dataset
 
@@ -90,12 +93,42 @@ def visualize_tokens(tokens, entropies):
     entropies = np.array(entropies)
     # Normalize to 0-1 range
     norm_entropies = (entropies - entropies.min()) / (entropies.max() - entropies.min() + 1e-8)
-    
+
     html = '<div style="line-height: 2; font-family: monospace; font-size: 14px;">'
     for token, intensity in zip(tokens, norm_entropies):
         # Escape HTML characters
         token = token.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
         html += f'<span style="background-color: rgba(100, 150, 255, {intensity:.2f});">{token}</span>'
     html += '</div>'
-    
+
     return HTML(html)
+
+def create_zip_archive(experiments_dir="experiments"):
+    """Create a zip archive of the experiments folder.
+
+    Args:
+        experiments_dir: Path to the directory to archive
+
+    Returns:
+        Path to the created zip file, or None if directory doesn't exist
+    """
+    experiments_path = Path(experiments_dir)
+
+    if not experiments_path.exists():
+        print(f"Directory '{experiments_dir}' does not exist.")
+        return None
+
+    # Create zip filename with timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    zip_filename = f"experiments_backup_{timestamp}.zip"
+
+    print(f"Creating zip archive: {zip_filename}")
+
+    with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for file_path in experiments_path.rglob('*'):
+            if file_path.is_file():
+                arcname = file_path.relative_to(experiments_path.parent)
+                zipf.write(file_path, arcname)
+
+    print(f"Zip archive created successfully: {zip_filename}")
+    return zip_filename

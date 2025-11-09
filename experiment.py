@@ -6,6 +6,8 @@ from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
 from reasoning_graph import ReasoningGraph
+import argparse
+import gc
 
 class Experiment:
     def __init__(self):
@@ -232,3 +234,96 @@ class Experiment:
             json.dump(self.experiment_file, f, indent=2)
 
         print("\nExperiment completed! Results saved to:", self.base_dir)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run reasoning graph experiment")
+
+    parser.add_argument("--model", type=str, required=True,
+                        help="Model name or path (e.g., 'Qwen/Qwen2.5-Math-1.5B-Instruct')")
+    parser.add_argument("--dataset", type=str, required=True,
+                        help="Dataset name (e.g., 'openai/gsm8k')")
+    parser.add_argument("--num_problems", type=int, default=1,
+                        help="Number of problems to sample from dataset")
+    parser.add_argument("--num_rollouts", type=int, default=1,
+                        help="Number of rollouts per problem")
+    parser.add_argument("--temperature", type=float, default=1.0,
+                        help="Sampling temperature")
+    parser.add_argument("--zip_experiments", action="store_true",
+                        help="Create a zip archive of the experiments folder after completion")
+
+    args = parser.parse_args()
+
+    try:
+        # Import transformers here to avoid loading if not needed
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
+        print("="*60)
+        print("EXPERIMENT CONFIGURATION")
+        print("="*60)
+        print(f"Model: {args.model}")
+        print(f"Dataset: {args.dataset}")
+        print(f"Number of problems: {args.num_problems}")
+        print(f"Number of rollouts: {args.num_rollouts}")
+        print(f"Temperature: {args.temperature}")
+        print(f"Zip experiments: {args.zip_experiments}")
+        print("="*60)
+
+        # Load problems from dataset
+        print(f"\nLoading {args.num_problems} problems from {args.dataset}...")
+        problems = load_problems_from_dataset(dataset=args.dataset, num_problems=args.num_problems)
+        print(f"Loaded {len(problems)} problems")
+
+        # Load tokenizer
+        print(f"\nLoading tokenizer from {args.model}...")
+        tokenizer = AutoTokenizer.from_pretrained(args.model)
+
+        # Load model
+        print(f"Loading model from {args.model}...")
+        model = AutoModelForCausalLM.from_pretrained(
+            args.model,
+            dtype="auto",
+            device_map="auto"
+        )
+        print("Model loaded successfully")
+
+        # Create and setup experiment
+        print("\nSetting up experiment...")
+        experiment = Experiment()
+        experiment.setup_new(
+            model_name=args.model,
+            dataset_name=args.dataset,
+            problems=problems,
+            num_rollouts=args.num_rollouts,
+            temperature=args.temperature
+        )
+
+        # Conduct experiment
+        print("\nStarting experiment...")
+        experiment.conduct_experiment(model, tokenizer)
+
+        # Cleanup
+        print("\nCleaning up...")
+        del model
+        del tokenizer
+        gc.collect()
+
+        # Release GPU cache if available
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            print("GPU cache cleared")
+
+        # Optionally create zip archive
+        if args.zip_experiments:
+            print("\nCreating zip archive of experiments folder...")
+            create_zip_archive()
+
+        print("\n" + "="*60)
+        print("EXPERIMENT COMPLETED SUCCESSFULLY")
+        print("="*60)
+
+    except Exception as e:
+        print(f"\nError during experiment: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        exit(1)
