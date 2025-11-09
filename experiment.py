@@ -5,7 +5,7 @@ from utils import *
 from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
-from ReasoningGraph import ReasoningGraph
+from reasoning_graph import ReasoningGraph
 
 class Experiment:
     def __init__(self):
