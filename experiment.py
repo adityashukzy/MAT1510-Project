@@ -141,8 +141,8 @@ class Experiment:
             # Check correctness
             is_correct = False
             if predicted_answer is not None and problem['ground_truth'] is not None:
-                # Allow small floating point tolerance
-                is_correct = abs(predicted_answer - problem['ground_truth']) < 1e-6
+                # Normalize both values to handle different formats (fractions, decimals, LaTeX)
+                is_correct = abs(normalize_math(predicted_answer) - normalize_math(problem['ground_truth'])) < 1e-6
             
             # Convert probability distributions and logits to lists for JSON serialization
             # These are CPU tensors already from ReasoningGraph

@@ -6,6 +6,7 @@ from pathlib import Path
 from datetime import datetime
 from IPython.display import HTML
 from datasets import load_dataset
+from sympy import sympify, N
 
 def extract_answer(text):
     """Extract the final numerical answer from the model output."""
@@ -39,6 +40,33 @@ def extract_answer(text):
         return float(numbers[-1])
 
     return None
+
+def normalize_math(value):
+    """Convert mathematical value (number/string/LaTeX) to float.
+
+    Handles various formats:
+    - Integers and floats: 0.25, 1, 2.5
+    - Fractions: 1/4, "1/4"
+    - LaTeX fractions: \\frac{1}{4}
+    - LaTeX roots: \\sqrt{2}, 70 \\sqrt{2}
+
+    Args:
+        value: Mathematical expression to normalize
+
+    Returns:
+        float: Numerical value
+    """
+    if isinstance(value, (int, float)):
+        return float(value)
+
+    # Convert LaTeX to sympify-compatible format
+    s = str(value)
+    s = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'((\1)/(\2))', s)  # \frac{a}{b} -> ((a)/(b))
+    s = re.sub(r'\\sqrt\{([^}]+)\}', r'sqrt(\1)', s)  # \sqrt{x} -> sqrt(x)
+    s = re.sub(r'(\d+)\s*sqrt', r'\1*sqrt', s)  # Add * for implicit multiplication
+    s = s.replace('\\', '')  # Remove other backslashes
+
+    return float(N(sympify(s)))
 
 def load_problems_from_dataset(dataset_name='openai/gsm8k', num_problems=10, split='test', seed=None):
     """Load a subset of problems from the provided dataset.
