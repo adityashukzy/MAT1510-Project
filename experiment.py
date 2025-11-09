@@ -271,7 +271,7 @@ if __name__ == "__main__":
 
         # Load problems from dataset
         print(f"\n\nLoading {args.num_problems} problems from {args.dataset}...")
-        problems = load_problems_from_dataset(dataset=args.dataset, num_problems=args.num_problems)
+        problems = load_problems_from_dataset(dataset_name=args.dataset, num_problems=args.num_problems)
         print(f"Loaded {len(problems)} problems")
 
         # Load tokenizer
