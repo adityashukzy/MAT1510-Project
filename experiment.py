@@ -270,16 +270,16 @@ if __name__ == "__main__":
         print("="*60)
 
         # Load problems from dataset
-        print(f"\nLoading {args.num_problems} problems from {args.dataset}...")
+        print(f"\n\nLoading {args.num_problems} problems from {args.dataset}...")
         problems = load_problems_from_dataset(dataset=args.dataset, num_problems=args.num_problems)
         print(f"Loaded {len(problems)} problems")
 
         # Load tokenizer
-        print(f"\nLoading tokenizer from {args.model}...")
+        print(f"\n\nLoading tokenizer from {args.model}...")
         tokenizer = AutoTokenizer.from_pretrained(args.model)
 
         # Load model
-        print(f"Loading model from {args.model}...")
+        print(f"\n\nLoading model from {args.model}...")
         model = AutoModelForCausalLM.from_pretrained(
             args.model,
             dtype="auto",
@@ -288,7 +288,7 @@ if __name__ == "__main__":
         print("Model loaded successfully")
 
         # Create and setup experiment
-        print("\nSetting up experiment...")
+        print("\n\nSetting up experiment...")
         experiment = Experiment()
         experiment.setup_new(
             model_name=args.model,
@@ -299,11 +299,11 @@ if __name__ == "__main__":
         )
 
         # Conduct experiment
-        print("\nStarting experiment...")
+        print("\n\nStarting experiment...")
         experiment.conduct_experiment(model, tokenizer)
 
         # Cleanup
-        print("\nCleaning up...")
+        print("\n\nCleaning up...")
         del model
         del tokenizer
         gc.collect()
@@ -315,15 +315,15 @@ if __name__ == "__main__":
 
         # Optionally create zip archive
         if args.zip_experiments:
-            print("\nCreating zip archive of experiments folder...")
+            print("\n\nCreating zip archive of experiments folder...")
             create_zip_archive()
 
-        print("\n" + "="*60)
+        print("\n\n" + "="*60)
         print("EXPERIMENT COMPLETED SUCCESSFULLY")
         print("="*60)
 
     except Exception as e:
-        print(f"\nError during experiment: {str(e)}")
+        print(f"\n\nError during experiment: {str(e)}")
         import traceback
         traceback.print_exc()
         exit(1)

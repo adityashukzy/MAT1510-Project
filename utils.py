@@ -52,7 +52,7 @@ def load_problems_from_dataset(dataset='openai/gsm8k', num_problems=10, split='t
     
     print(f"Loading {num_problems} problems from {dataset}:{split}")
     
-    dataset = load_dataset(dataset, "main")
+    dataset = load_dataset(dataset)
     dataset = dataset[split]
     
     # Only set seed if one is provided
@@ -79,9 +79,12 @@ def load_problems_from_dataset(dataset='openai/gsm8k', num_problems=10, split='t
         gt_match = re.search(r'####\s*(-?\d+(?:\.\d+)?)', item['answer'])
         ground_truth = float(gt_match.group(1)) if gt_match else None
 
+        # Determine which key to use for the question text
+        question_key = 'question' if 'question' in item else 'problem'
+
         problems.append({
             'index': idx,
-            'question': item['question'],
+            'question': item[question_key],
             'full_answer': item['answer'],
             'ground_truth': ground_truth
         })
@@ -120,7 +123,7 @@ def create_zip_archive(experiments_dir="experiments"):
 
     # Create zip filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    zip_filename = f"experiments_backup_{timestamp}.zip"
+    zip_filename = f"experiments_{timestamp}.zip"
 
     print(f"Creating zip archive: {zip_filename}")
 
