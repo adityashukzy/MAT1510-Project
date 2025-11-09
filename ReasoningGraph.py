@@ -169,26 +169,18 @@ class ReasoningGraph():
 
     # Removes the last token from the KV cache
     def _remove_KV_cache(self, model):
-        new_len = self.input_ids.shape[1]
-        device = self.input_ids.device
-        bsz = self.input_ids.size(0)
+        with torch.inference_mode():
+            # The attention mask
+            attn = torch.ones_like(self.input_ids, dtype=torch.long)
 
-        # start clean
-        self.model_kwargs = {}
+            # Rebuild model_kwargs
+            self.model_kwargs = {"use_cache": True, "attention_mask": attn}
+            self.model_kwargs = model._get_initial_cache_position(self.input_ids.shape[1], self.input_ids.device, self.model_kwargs)
+            model_inputs = model.prepare_inputs_for_generation(self.input_ids, **self.model_kwargs)
 
-        # rebuild attention mask
-        self.model_kwargs["attention_mask"] = torch.ones(
-            (bsz, new_len), dtype=torch.long, device=device
-        )
-
-        # for models that use these
-        self.model_kwargs["position_ids"] = torch.arange(0, new_len, device=device).unsqueeze(0)
-        self.model_kwargs["cache_position"] = torch.arange(0, new_len, device=device)
-
-        # initialize model-internal cache position bookkeeping
-        self.model_kwargs = model._get_initial_cache_position(
-            new_len, device, self.model_kwargs
-        )
+            # Run the model to build the cache back. TODO look into ways we can store then query the old cache. Maybe build our own cache variant
+            outputs = model(**model_inputs, return_dict=True)
+            self.model_kwargs = model._update_model_kwargs_for_generation(outputs, self.model_kwargs, is_encoder_decoder=model.config.is_encoder_decoder)
 
     # Backtracking to create the full graph structure
     def build_full_graph(self, model):
