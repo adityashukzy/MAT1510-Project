@@ -40,6 +40,15 @@ echo "Creating scratch workspace at: $SCRATCH_DIR"
 mkdir -p "$SCRATCH_DIR"
 cd "$SCRATCH_DIR"
 
+# Configure cache directories to avoid filling home directory
+export UV_CACHE_DIR="$SCRATCH_DIR/.uv_cache"
+export UV_LINK_MODE="copy"  # Suppress hardlink warnings
+export TMPDIR="$SCRATCH_DIR/.tmp"
+mkdir -p "$TMPDIR"
+echo "UV cache set to: $UV_CACHE_DIR"
+echo "Temp dir set to: $TMPDIR"
+# Note: HuggingFace cache stays in ~/.cache/huggingface for reuse across jobs
+
 # Cleanup function to ensure scratch is cleaned up even on failure
 cleanup() {
     echo "=========================================="
