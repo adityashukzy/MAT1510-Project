@@ -142,12 +142,19 @@ class Experiment:
             
             # Extract predicted answer
             predicted_answer = extract_answer(output_text)
-            
-            # Check correctness
+
+            # Check correctness with simple comparison
             is_correct = False
-            if predicted_answer is not None and problem['ground_truth'] is not None:
-                # Normalize both values to handle different formats (fractions, decimals, LaTeX)
-                is_correct = abs(normalize_math(predicted_answer) - normalize_math(problem['ground_truth'])) < 1e-6
+            if predicted_answer is not None and problem.get('ground_truth') is not None:
+                try:
+                    # Try direct numerical comparison
+                    pred_val = float(predicted_answer)
+                    gt_val = float(problem['ground_truth'])
+                    is_correct = abs(pred_val - gt_val) < 1e-6
+                except (ValueError, TypeError):
+                    # Fall back to string comparison if conversion fails
+                    is_correct = str(predicted_answer).strip() == str(problem['ground_truth']).strip()
+            # If either is None, is_correct remains False
             
             # Convert probability distributions and logits to lists for JSON serialization
             # These are CPU tensors already from ReasoningGraph
