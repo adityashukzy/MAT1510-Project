@@ -129,6 +129,7 @@ if [ $? -eq 0 ]; then
 
     echo "Results saved to: $HOME_RESULTS_DIR"
     echo "You can access them on apps0 at: $HOME_RESULTS_DIR"
+    echo "You can download the zip by running (on your local):\nscp adshukla@cs.toronto.edu:mat1510_results/experiments_<timestamp>.zip /Users/adityashukzy/Documents/GitHub/MAT1510-Project/experiments/slurm_experiments."
 
     echo "=========================================="
     echo "Finished at: $(date)"
