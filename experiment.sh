@@ -1,17 +1,117 @@
-# Clone git repository
+#!/bin/bash
+#SBATCH --job-name=mat1510_experiment
+#SBATCH --partition=gpunodes
+#SBATCH --gres=gpu:rtx_4090:1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=32G
+#SBATCH --time=02:00:00
+#SBATCH --output=slurm_logs/experiment_%j.out
+#SBATCH --error=slurm_logs/experiment_%j.err
+
+# Exit on error
+set -e
+
+echo "=========================================="
+echo "SLURM Job ID: $SLURM_JOB_ID"
+echo "Running on node: $(hostname)"
+echo "Starting at: $(date)"
+echo "=========================================="
+
+# Define directories
+SCRATCH_DIR="/scratch/scratch-space/$USER/mat1510_job_${SLURM_JOB_ID}"
+HOME_RESULTS_DIR="$HOME/mat1510_results"
+mkdir -p "$HOME_RESULTS_DIR"
+mkdir -p slurm_logs
+
+# Create scratch workspace
+echo "Creating scratch workspace at: $SCRATCH_DIR"
+mkdir -p "$SCRATCH_DIR"
+cd "$SCRATCH_DIR"
+
+# Cleanup function to ensure scratch is cleaned up even on failure
+cleanup() {
+    echo "=========================================="
+    echo "Cleaning up scratch space..."
+    if [ -d "$SCRATCH_DIR" ]; then
+        rm -rf "$SCRATCH_DIR"
+        echo "Scratch directory removed: $SCRATCH_DIR"
+    fi
+    echo "=========================================="
+}
+trap cleanup EXIT
+
+# Clone repository to scratch
+echo "Cloning repository to scratch..."
 git clone https://github.com/adityashukzy/MAT1510-Project.git
-
-# Move into repository
 cd MAT1510-Project
-
-# Switch to 'aditya'
 git checkout aditya
 
+# Install UV if not already available
+if ! command -v uv &> /dev/null; then
+    echo "Installing UV..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.local/bin:$PATH"
+else
+    echo "UV already installed: $(uv --version)"
+fi
+
+# Setup Python virtual environment using UV
+echo "Creating virtual environment with UV..."
+uv venv
+
+echo "Activating virtual environment..."
+source .venv/bin/activate
+
+# Install dependencies from pyproject.toml using UV
+# This installs all dependencies listed in [project.dependencies]
+echo "Installing dependencies with UV from pyproject.toml..."
+uv pip install -e .
+
+# Verify GPU availability
+echo "=========================================="
+echo "GPU Information:"
+python -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda}'); print(f'Number of GPUs: {torch.cuda.device_count()}'); [print(f'GPU {i}: {torch.cuda.get_device_name(i)}') for i in range(torch.cuda.device_count())]"
+echo "=========================================="
+
 # Run experiment
+echo "Starting experiment..."
+echo "=========================================="
+
 python experiment.py \
-  --model "Qwen/Qwen2.5-Math-1.5B-Instruct" \
+  --model "Qwen/Qwen3-4B-Thinking-2507" \
   --dataset "HuggingFaceH4/MATH-500" \
-  --num_problems 1 \
-  --num_rollouts 1 \
+  --num_problems 3 \
+  --num_rollouts 3 \
   --temperature 1.0 \
   --zip_experiments
+
+# Check if experiment succeeded
+if [ $? -eq 0 ]; then
+    echo "=========================================="
+    echo "Experiment completed successfully!"
+
+    # Copy results to home directory
+    echo "Copying results to home directory..."
+
+    # Copy the experiments folder
+    cp -r experiments "$HOME_RESULTS_DIR/experiments_${SLURM_JOB_ID}"
+
+    # Copy zip file if it exists
+    if ls experiments_*.zip 1> /dev/null 2>&1; then
+        cp experiments_*.zip "$HOME_RESULTS_DIR/"
+        echo "Zip file copied to: $HOME_RESULTS_DIR/"
+        ls -lh "$HOME_RESULTS_DIR"/experiments_*.zip
+    fi
+
+    echo "Results saved to: $HOME_RESULTS_DIR"
+    echo "You can access them on apps0 at: $HOME_RESULTS_DIR"
+
+    echo "=========================================="
+    echo "Finished at: $(date)"
+else
+    echo "=========================================="
+    echo "Experiment failed!"
+    echo "Check the error log for details: slurm_logs/experiment_${SLURM_JOB_ID}.err"
+    echo "=========================================="
+    exit 1
+fi
