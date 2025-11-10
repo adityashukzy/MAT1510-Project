@@ -115,7 +115,12 @@ class Experiment:
         for rollout_idx in tqdm(range(num_rollouts), desc=f"Problem {problem['index']}"):
             # Create brand-new ReasoningGraph for each rollout
             generator = ReasoningGraph(tokenizer=tokenizer)
-            
+
+            # Log GPU info for first rollout of first problem
+            if problem_idx == 0 and rollout_idx == 0:
+                print(f"\n[GPU Check] Input tensors device: {model_inputs['input_ids'].device}")
+                print(f"[GPU Check] Model device: {model.device}")
+
             # Generate one rollout
             with torch.inference_mode():
                 generated_ids = model.generate(
@@ -286,6 +291,25 @@ if __name__ == "__main__":
             device_map="auto"
         )
         print("Model loaded successfully")
+
+        # Verify GPU usage
+        print("\n" + "="*60)
+        print("GPU VERIFICATION")
+        print("="*60)
+        print(f"CUDA available: {torch.cuda.is_available()}")
+        if torch.cuda.is_available():
+            print(f"CUDA device count: {torch.cuda.device_count()}")
+            print(f"Current CUDA device: {torch.cuda.current_device()}")
+            print(f"CUDA device name: {torch.cuda.get_device_name(0)}")
+
+        # Check where model is placed
+        if hasattr(model, 'hf_device_map'):
+            print(f"\nModel device map: {model.hf_device_map}")
+
+        # Check model's main device
+        print(f"Model device: {model.device}")
+        print(f"Model dtype: {model.dtype}")
+        print("="*60)
 
         # Create and setup experiment
         print("\n\nSetting up experiment...")
