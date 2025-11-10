@@ -44,10 +44,13 @@ cd "$SCRATCH_DIR"
 export UV_CACHE_DIR="$SCRATCH_DIR/.uv_cache"
 export UV_LINK_MODE="copy"  # Suppress hardlink warnings
 export TMPDIR="$SCRATCH_DIR/.tmp"
+export HF_HOME="$SCRATCH_DIR/.hf_cache"
 mkdir -p "$TMPDIR"
+mkdir -p "$HF_HOME"
 echo "UV cache set to: $UV_CACHE_DIR"
 echo "Temp dir set to: $TMPDIR"
-# Note: HuggingFace cache stays in ~/.cache/huggingface for reuse across jobs
+echo "HuggingFace cache set to: $HF_HOME"
+# Note: All caches now in scratch (cleaned up after each job)
 
 # Cleanup function to ensure scratch is cleaned up even on failure
 cleanup() {
