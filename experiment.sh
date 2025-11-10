@@ -103,9 +103,9 @@ echo "=========================================="
 
 python -u experiment.py \
   --model "Qwen/Qwen3-4B-Thinking-2507" \
-  --dataset "HuggingFaceH4/MATH-500" \
-  --num_problems 3 \
-  --num_rollouts 3 \
+  --dataset "yentinglin/aime_2025" \
+  --num_problems 10 \
+  --num_rollouts 50 \
   --temperature 1.0 \
   --zip_experiments
 
