@@ -346,8 +346,8 @@ if __name__ == "__main__":
 
         # Optionally create zip archive
         if args.zip_experiments:
-            print("\n\nCreating zip archive of experiments folder...")
-            create_zip_archive()
+            print("\n\nCreating zip archive of this experiment...")
+            create_zip_archive(experiment.base_dir)
 
         print("\n\n" + "="*60)
         print("EXPERIMENT COMPLETED SUCCESSFULLY")

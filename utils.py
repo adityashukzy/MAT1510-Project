@@ -163,31 +163,30 @@ def visualize_tokens(tokens, entropies):
 
     return HTML(html)
 
-def create_zip_archive(experiments_dir="experiments"):
-    """Create a zip archive of the experiments folder.
+def create_zip_archive(experiment_dir):
+    """Create a zip archive of a specific experiment folder.
 
     Args:
-        experiments_dir: Path to the directory to archive
+        experiment_dir: Path to the specific experiment directory to archive
 
     Returns:
         Path to the created zip file, or None if directory doesn't exist
     """
-    experiments_path = Path(experiments_dir)
+    experiment_path = Path(experiment_dir)
 
-    if not experiments_path.exists():
-        print(f"Directory '{experiments_dir}' does not exist.")
+    if not experiment_path.exists():
+        print(f"Directory '{experiment_dir}' does not exist.")
         return None
 
-    # Create zip filename with timestamp
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    zip_filename = f"experiments_{timestamp}.zip"
+    # Create zip filename based on the experiment folder name
+    zip_filename = f"{experiment_path.name}.zip"
 
     print(f"Creating zip archive: {zip_filename}")
 
     with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        for file_path in experiments_path.rglob('*'):
+        for file_path in experiment_path.rglob('*'):
             if file_path.is_file():
-                arcname = file_path.relative_to(experiments_path.parent)
+                arcname = file_path.relative_to(experiment_path.parent)
                 zipf.write(file_path, arcname)
 
     print(f"Zip archive created successfully: {zip_filename}")

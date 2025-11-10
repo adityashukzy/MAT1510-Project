@@ -114,22 +114,22 @@ if [ $? -eq 0 ]; then
     echo "=========================================="
     echo "Experiment completed successfully!"
 
-    # Copy results to home directory
+    # Copy zip file to home directory
     echo "Copying results to home directory..."
 
-    # Copy the experiments folder
-    cp -r experiments "$HOME_RESULTS_DIR/experiments_${SLURM_JOB_ID}"
-
     # Copy zip file if it exists
-    if ls experiments_*.zip 1> /dev/null 2>&1; then
-        cp experiments_*.zip "$HOME_RESULTS_DIR/"
+    if ls experiment_*.zip 1> /dev/null 2>&1; then
+        cp experiment_*.zip "$HOME_RESULTS_DIR/"
         echo "Zip file copied to: $HOME_RESULTS_DIR/"
-        ls -lh "$HOME_RESULTS_DIR"/experiments_*.zip
+        ls -lh "$HOME_RESULTS_DIR"/experiment_*.zip
+    else
+        echo "Warning: No zip file found. Did --zip_experiments flag work?"
     fi
 
     echo "Results saved to: $HOME_RESULTS_DIR"
     echo "You can access them on apps0 at: $HOME_RESULTS_DIR"
-    echo "You can download the zip by running (on your local):\nscp adshukla@cs.toronto.edu:mat1510_results/experiments_<timestamp>.zip /Users/adityashukzy/Documents/GitHub/MAT1510-Project/experiments/slurm_experiments."
+    echo "You can download the zip by running (on your local):"
+    echo "  scp adshukla@cs.toronto.edu:mat1510_results/experiment_<timestamp>.zip /Users/adityashukzy/Documents/GitHub/MAT1510-Project/experiments/"
 
     echo "=========================================="
     echo "Finished at: $(date)"
