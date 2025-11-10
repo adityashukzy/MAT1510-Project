@@ -82,14 +82,14 @@ uv pip install -e .
 # Verify GPU availability
 echo "=========================================="
 echo "GPU Information:"
-python -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda}'); print(f'Number of GPUs: {torch.cuda.device_count()}'); [print(f'GPU {i}: {torch.cuda.get_device_name(i)}') for i in range(torch.cuda.device_count())]"
+python -u -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda}'); print(f'Number of GPUs: {torch.cuda.device_count()}'); [print(f'GPU {i}: {torch.cuda.get_device_name(i)}') for i in range(torch.cuda.device_count())]"
 echo "=========================================="
 
 # Run experiment
 echo "Starting experiment..."
 echo "=========================================="
 
-python experiment.py \
+python -u experiment.py \
   --model "Qwen/Qwen3-4B-Thinking-2507" \
   --dataset "HuggingFaceH4/MATH-500" \
   --num_problems 3 \
