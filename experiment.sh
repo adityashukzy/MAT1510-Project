@@ -18,10 +18,22 @@ echo "Starting at: $(date)"
 echo "=========================================="
 
 # Define directories
-SCRATCH_DIR="/scratch/scratch-space/$USER/mat1510_job_${SLURM_JOB_ID}"
 HOME_RESULTS_DIR="$HOME/mat1510_results"
 mkdir -p "$HOME_RESULTS_DIR"
 mkdir -p slurm_logs
+
+# Find the latest scratch directory (expires-DATE format)
+# This works because we're now running on a compute node where /scratch/ exists
+SCRATCH_BASE=$(ls -1d /scratch/scratch-space/expires-* 2>/dev/null | sort | tail -1)
+if [ -z "$SCRATCH_BASE" ]; then
+    echo "ERROR: No scratch space found at /scratch/scratch-space/"
+    echo "Available directories:"
+    ls -la /scratch/scratch-space/ 2>&1 || echo "Cannot access /scratch/scratch-space/"
+    exit 1
+fi
+
+echo "Using scratch base: $SCRATCH_BASE"
+SCRATCH_DIR="$SCRATCH_BASE/$USER/mat1510_job_${SLURM_JOB_ID}"
 
 # Create scratch workspace
 echo "Creating scratch workspace at: $SCRATCH_DIR"
