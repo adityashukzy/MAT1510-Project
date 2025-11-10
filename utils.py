@@ -89,7 +89,7 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', num_problems=10, spl
     else:
         dataset = load_dataset(dataset_name)
     
-    dataset = dataset[split]
+    dataset = dataset[split if split in dataset else 'train']
     
     # Only set seed if one is provided
     if seed is not None:
