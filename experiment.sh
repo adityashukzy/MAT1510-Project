@@ -18,6 +18,7 @@ DATASET="yentinglin/aime_2025"
 PROBLEMS="10"
 NUM_ROLLOUTS=50
 TEMPERATURE=1.0
+MAX_NEW_TOKENS=2048
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -39,6 +40,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --temperature)
             TEMPERATURE="$2"
+            shift 2
+            ;;
+        --max_new_tokens)
+            MAX_NEW_TOKENS="$2"
             shift 2
             ;;
         *)
@@ -145,6 +150,7 @@ python -u experiment.py \
   --problems "$PROBLEMS" \
   --num_rollouts $NUM_ROLLOUTS \
   --temperature $TEMPERATURE \
+  --max_new_tokens $MAX_NEW_TOKENS \
   --zip_experiments
 
 # Check if experiment succeeded

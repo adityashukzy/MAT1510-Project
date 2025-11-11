@@ -19,9 +19,9 @@ class Experiment:
         self.results = None
         self.experiment_file = {}
         
-    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature):
+    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature, max_new_tokens=2048):
         """Create directory structure for new experiment."""
-        
+
         # Build new experiment config
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.problems = problems
@@ -31,6 +31,7 @@ class Experiment:
             "num_problems": len(self.problems),
             "num_rollouts": num_rollouts,
             "temperature": temperature,
+            "max_new_tokens": max_new_tokens,
             "timestamp": self.timestamp
         }
         self.base_dir = Path("experiments") / f"experiment_{self.timestamp}"
@@ -238,8 +239,9 @@ class Experiment:
                 tokenizer,
                 problem,
                 problem_idx,
-                num_rollouts=self.config["num_rollouts"], 
-                temperature=self.config["temperature"]
+                num_rollouts=self.config["num_rollouts"],
+                temperature=self.config["temperature"],
+                max_new_tokens=self.config["max_new_tokens"]
             )
 
         with open(self.base_dir / "experiment.json", "w") as f:
@@ -261,6 +263,8 @@ if __name__ == "__main__":
                         help="Number of rollouts per problem")
     parser.add_argument("--temperature", type=float, default=1.0,
                         help="Sampling temperature")
+    parser.add_argument("--max_new_tokens", type=int, default=2048,
+                        help="Maximum number of new tokens to generate")
     parser.add_argument("--zip_experiments", action="store_true",
                         help="Create a zip archive of the experiments folder after completion")
 
@@ -278,6 +282,7 @@ if __name__ == "__main__":
         print(f"Problems: {args.problems}")
         print(f"Number of rollouts: {args.num_rollouts}")
         print(f"Temperature: {args.temperature}")
+        print(f"Max new tokens: {args.max_new_tokens}")
         print(f"Zip experiments: {args.zip_experiments}")
         print("="*60)
 
@@ -329,7 +334,8 @@ if __name__ == "__main__":
             dataset_name=args.dataset,
             problems=problems,
             num_rollouts=args.num_rollouts,
-            temperature=args.temperature
+            temperature=args.temperature,
+            max_new_tokens=args.max_new_tokens
         )
 
         # Conduct experiment
