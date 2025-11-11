@@ -1,7 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=aditya
 #SBATCH --partition=gpunodes
-#SBATCH --gres=gpu:rtx_4090:1
+#SBATCH --gres=gpu:1
+#SBATCH --constraint="RTX_4090|RTX_A4500|RTX_A6000"
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
 #SBATCH --time=60:00:00
