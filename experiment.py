@@ -255,8 +255,8 @@ if __name__ == "__main__":
                         help="Model name or path (e.g., 'Qwen/Qwen2.5-Math-1.5B-Instruct')")
     parser.add_argument("--dataset", type=str, required=True,
                         help="Dataset name (e.g., 'openai/gsm8k')")
-    parser.add_argument("--num_problems", type=int, default=1,
-                        help="Number of problems to sample from dataset")
+    parser.add_argument("--problems", type=str, default="1",
+                        help="Number of problems to sample (e.g., '10') or range (e.g., '0:10', '10-20')")
     parser.add_argument("--num_rollouts", type=int, default=1,
                         help="Number of rollouts per problem")
     parser.add_argument("--temperature", type=float, default=1.0,
@@ -265,6 +265,26 @@ if __name__ == "__main__":
                         help="Create a zip archive of the experiments folder after completion")
 
     args = parser.parse_args()
+
+    # Parse --problems to detect range or integer
+    problems_str = args.problems
+    use_range = False
+    problem_start = 0
+    problem_end = None
+    num_problems = 1
+
+    if ':' in problems_str or '-' in problems_str:
+        # Range mode: "0:10" or "0-10"
+        use_range = True
+        separator = ':' if ':' in problems_str else '-'
+        parts = problems_str.split(separator)
+        if len(parts) != 2:
+            raise ValueError(f"Invalid range format: {problems_str}. Use 'start:end' or 'start-end'")
+        problem_start = int(parts[0])
+        problem_end = int(parts[1])
+    else:
+        # Integer mode: "10"
+        num_problems = int(problems_str)
 
     try:
         # Import transformers here to avoid loading if not needed
@@ -275,15 +295,24 @@ if __name__ == "__main__":
         print("="*60)
         print(f"Model: {args.model}")
         print(f"Dataset: {args.dataset}")
-        print(f"Number of problems: {args.num_problems}")
+        if use_range:
+            print(f"Problems: range [{problem_start}:{problem_end})")
+        else:
+            print(f"Problems: {num_problems} (random sample)")
         print(f"Number of rollouts: {args.num_rollouts}")
         print(f"Temperature: {args.temperature}")
         print(f"Zip experiments: {args.zip_experiments}")
         print("="*60)
 
         # Load problems from dataset
-        print(f"\n\nLoading {args.num_problems} problems from {args.dataset}...")
-        problems = load_problems_from_dataset(dataset_name=args.dataset, num_problems=args.num_problems)
+        print(f"\n\nLoading problems from {args.dataset}...")
+        problems = load_problems_from_dataset(
+            dataset_name=args.dataset,
+            num_problems=num_problems,
+            use_range=use_range,
+            problem_start=problem_start,
+            problem_end=problem_end
+        )
         print(f"Loaded {len(problems)} problems")
 
         # Load tokenizer

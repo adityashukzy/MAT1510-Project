@@ -4,12 +4,48 @@
 #SBATCH --gres=gpu:rtx_4090:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
-#SBATCH --time=20:00:00
+#SBATCH --time=60:00:00
 #SBATCH --output=slurm_logs/experiment_%j.out
 #SBATCH --error=slurm_logs/experiment_%j.err
 
 # Exit on error
 set -e
+
+# Parse command-line arguments with defaults
+MODEL="Qwen/Qwen3-4B-Thinking-2507"
+DATASET="yentinglin/aime_2025"
+PROBLEMS="10"
+NUM_ROLLOUTS=50
+TEMPERATURE=1.0
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --model)
+            MODEL="$2"
+            shift 2
+            ;;
+        --dataset)
+            DATASET="$2"
+            shift 2
+            ;;
+        --problems)
+            PROBLEMS="$2"
+            shift 2
+            ;;
+        --num_rollouts)
+            NUM_ROLLOUTS="$2"
+            shift 2
+            ;;
+        --temperature)
+            TEMPERATURE="$2"
+            shift 2
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
 
 echo "=========================================="
 echo "SLURM Job ID: $SLURM_JOB_ID"
@@ -101,12 +137,13 @@ echo "=========================================="
 echo "Starting experiment..."
 echo "=========================================="
 
+# Execute the Python command
 python -u experiment.py \
-  --model "Qwen/Qwen3-4B-Thinking-2507" \
-  --dataset "yentinglin/aime_2025" \
-  --num_problems 10 \
-  --num_rollouts 50 \
-  --temperature 1.0 \
+  --model "$MODEL" \
+  --dataset "$DATASET" \
+  --problems "$PROBLEMS" \
+  --num_rollouts $NUM_ROLLOUTS \
+  --temperature $TEMPERATURE \
   --zip_experiments
 
 # Check if experiment succeeded
