@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=mat1510_experiment
+#SBATCH --job-name=aditya
 #SBATCH --partition=gpunodes
 #SBATCH --gres=gpu:rtx_4090:1
 #SBATCH --cpus-per-task=8

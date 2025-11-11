@@ -68,22 +68,32 @@ def normalize_math(value):
 
     return float(N(sympify(s)))
 
-def load_problems_from_dataset(dataset_name='openai/gsm8k', num_problems=10, split='test', seed=None, use_range=False, problem_start=0, problem_end=None):
+def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split='test'):
     """Load a subset of problems from the provided dataset.
 
     Args:
         dataset_name: Name of HuggingFace dataset from which to sample problems
-        num_problems: Number of problems to sample (used only when use_range=False)
+        problems: Number of problems to sample (e.g., '10') or range (e.g., '0:10', '10-20')
         split: Dataset split ('train' or 'test')
-        seed: Random seed for reproducibility. If None, sampling will be truly random.
-        use_range: If True, use problem_start and problem_end instead of random sampling
-        problem_start: Starting index for problem range (used only when use_range=True)
-        problem_end: Ending index for problem range (used only when use_range=True)
     """
 
-    if use_range:
+    # Parse problems parameter to detect range or integer
+    if ':' in problems or '-' in problems:
+        # Range mode: "0:10" or "0-10"
+        use_range = True
+        separator = ':' if ':' in problems else '-'
+        parts = problems.split(separator)
+        if len(parts) != 2:
+            raise ValueError(f"Invalid range format: {problems}. Use 'start:end' or 'start-end'")
+        problem_start = int(parts[0])
+        problem_end = int(parts[1])
         print(f"Loading problems [{problem_start}:{problem_end}) from {dataset_name}:{split}")
     else:
+        # Integer mode: "10"
+        use_range = False
+        num_problems = int(problems)
+        problem_start = 0
+        problem_end = None
         print(f"Loading {num_problems} problems from {dataset_name}:{split}")
 
     if dataset_name == 'openai/gsm8k':
@@ -111,21 +121,11 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', num_problems=10, spl
         print(f"Using range [{problem_start}, {end}), total {len(indices)} problems")
     else:
         # Use random sampling mode
-        # Only set seed if one is provided
-        if seed is not None:
-            random.seed(seed)
-            print(f"Using fixed seed: {seed}")
-
-        # Sample without replacement
         if num_problems > total_problems:
             print(f"Warning: Requested {num_problems} problems but dataset only has {total_problems}.")
             num_problems = total_problems
 
         indices = random.sample(range(total_problems), num_problems)
-
-        # Reset seed if we set it
-        if seed is not None:
-            random.seed()
 
     problems = []
     for idx in indices:
