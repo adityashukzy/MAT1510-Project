@@ -182,6 +182,10 @@ class ReasoningGraph():
             outputs = model(**model_inputs, return_dict=True)
             self.model_kwargs = model._update_model_kwargs_for_generation(outputs, self.model_kwargs, is_encoder_decoder=model.config.is_encoder_decoder)
 
+            # Trying to stop the min length being set
+            self.generation_config.min_length = 0
+            self.generation_config.min_new_tokens = 0
+
     # Backtracking to create the full graph structure
     def build_full_graph(self, model):
         if self.curr_token is None:
@@ -201,10 +205,6 @@ class ReasoningGraph():
                     if self.curr_token.is_forking_token and len(self.curr_token.next_tokens) < self.branch_per_level:
                         self._remove_KV_cache(model)
                         backward = False
-
-                        # Trying to stop the min length being set
-                        self.generation_config.min_length = 0
-                        self.generation_config.min_new_tokens = 0
                         
                         print(f'Exploring at depth: {self.forking_depth}')
 
