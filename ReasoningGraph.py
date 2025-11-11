@@ -259,22 +259,17 @@ class ReasoningGraph():
             
         sequence = []
         current = self.first_token
-        visited = set()  # Keep track of visited tokens to prevent infinite loops
+
+        # Using dfs
+        stack = []
+        stack.append(current)
         
-        while current and current.id not in visited:
-            sequence.append(current)
-            visited.add(current.id)
+        while len(stack) > 0:
+            node = stack.pop()
+            sequence.append(node)
             
-            # Try to find the next token that's part of the response
-            next_token = None
-            if current.next_tokens:
-                for token in current.next_tokens:
-                    if token.part_of_response and token.id not in visited:
-                        next_token = token
-                        break
-            
-            # Move to next token or end if no valid next token found
-            current = next_token
+            for next_token in node.next_tokens:
+                stack.append(next_token)
         
         return sequence
 
