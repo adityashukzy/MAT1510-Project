@@ -67,6 +67,7 @@ class ReasoningGraph():
             input_ids,
             logits_processor,
             generation_config,
+            used_tokens=None,
             **model_kwargs
         ):
         temperature = getattr(generation_config, "temperature", 1.0)
@@ -96,8 +97,17 @@ class ReasoningGraph():
         if do_sample and temperature > 0:
             next_token_scores = next_token_scores / temperature
 
-            # Sample from the distribution
             probs = torch.softmax(next_token_scores, dim=-1)
+
+            # Sample from the distribution
+            if used_tokens is not None:
+                # Remove used tokens
+                probs[:, used_tokens] = 0.0
+
+                # Renormalize probs
+                probs = probs / probs.sum()
+                
+            # Sample from distribution
             next_tokens = torch.multinomial(probs, num_samples=1)
 
         else:
@@ -218,6 +228,7 @@ class ReasoningGraph():
         
         # To track entropy from forking nodes
         forking_metric = None
+        used_tokens = None
 
         print('')
         print('Starting full graph creation')
@@ -233,6 +244,7 @@ class ReasoningGraph():
                         self._remove_KV_cache(model)
                         backward = False
                         forking_metric = self.curr_token.metric_value
+                        used_tokens = [token.token_id for token in self.curr_token.next_tokens]
                         
                         print(f'Exploring at depth: {self.forking_depth}')
 
@@ -249,7 +261,12 @@ class ReasoningGraph():
                         self.curr_token = self.curr_token.prev_token
                 else:
                     # Generate a token
-                    next_tokens, step_metric, probs, next_token_scores, self.model_kwargs = self._generate_single_token(model, self.input_ids, self.logits_processor, self.generation_config, **self.model_kwargs)
+                    next_tokens, step_metric, probs, next_token_scores, self.model_kwargs = self._generate_single_token(model, 
+                                                                                                                        self.input_ids, 
+                                                                                                                        self.logits_processor, 
+                                                                                                                        self.generation_config,
+                                                                                                                        used_tokens=used_tokens,
+                                                                                                                        **self.model_kwargs)
                         
                     # The branch after a forking token
                     if forking_metric is not None:
@@ -318,6 +335,7 @@ class ReasoningGraph():
                         backward = True
 
                     forking_metric = None
+                    used_tokens = None
 
         print('Done building the full graph')
     
