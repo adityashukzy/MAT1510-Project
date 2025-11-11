@@ -143,17 +143,28 @@ class ReasoningGraph():
 
             is_forking = metric_value >= self.metric_threshold
 
+            # The forking nodes aren't going to hold any information now. Just branching
             if is_forking:
                 self.forking_depth += 1
-            
-            token = Token(
-                token_id=output_id.item(),
-                value=self.tokenizer.decode(output_id),
-                metric=self.metric,
-                metric_value=metric_value,
-                is_forking_token=is_forking,
-                part_of_response=True
-            )
+
+                token = Token(
+                    token_id=-1,
+                    value='',
+                    metric=self.metric,
+                    metric_value=metric_value,
+                    is_forking_token=is_forking,
+                    part_of_response=False
+                )
+
+            else:
+                token = Token(
+                    token_id=output_id.item(),
+                    value=self.tokenizer.decode(output_id),
+                    metric=self.metric,
+                    metric_value=metric_value,
+                    is_forking_token=is_forking,
+                    part_of_response=True
+                )
 
             # if token is our first token, flag it as such
             if self.curr_token is None:
@@ -166,6 +177,19 @@ class ReasoningGraph():
 
             # then, `token` becomes the `curr_token` for the next token
             self.curr_token = token
+
+            if is_forking:
+                token = Token(
+                    token_id=output_id.item(),
+                    value=self.tokenizer.decode(output_id),
+                    metric=self.metric,
+                    metric_value=metric_value,
+                    is_forking_token=False,
+                    part_of_response=True
+                )
+                self.curr_token.add_next_token(token)
+                token.add_prev_token(self.curr_token)
+                self.curr_token = token
 
     # Removes the last token from the KV cache
     def _remove_KV_cache(self, model):
@@ -191,6 +215,9 @@ class ReasoningGraph():
         if self.curr_token is None:
             print("Please generate tokens before creating the graph")
             return
+        
+        # To track entropy from forking nodes
+        forking_metric = None
 
         print('')
         print('Starting full graph creation')
@@ -205,6 +232,7 @@ class ReasoningGraph():
                     if self.curr_token.is_forking_token and len(self.curr_token.next_tokens) < self.branch_per_level:
                         self._remove_KV_cache(model)
                         backward = False
+                        forking_metric = self.curr_token.metric_value
                         
                         print(f'Exploring at depth: {self.forking_depth}')
 
@@ -213,41 +241,83 @@ class ReasoningGraph():
                         # Tracking where in the graph
                         if self.curr_token.is_forking_token:
                             self.forking_depth -= 1
+                        else:
+                            # Reduce the length of the tokens
+                            new_len = self.input_ids.shape[1] - 1
+                            self.input_ids = self.input_ids[:, :new_len]
 
-                        # Reduce the length of the tokens
-                        new_len = self.input_ids.shape[1] - 1
-                        self.input_ids = self.input_ids[:, :new_len]
                         self.curr_token = self.curr_token.prev_token
                 else:
                     # Generate a token
                     next_tokens, step_metric, probs, next_token_scores, self.model_kwargs = self._generate_single_token(model, self.input_ids, self.logits_processor, self.generation_config, **self.model_kwargs)
                         
-                    metric_value = step_metric.detach().to(torch.float32).squeeze().cpu().item()
+                    # The branch after a forking token
+                    if forking_metric is not None:
+                        token = Token(
+                            token_id=next_tokens.item(),
+                            value=self.tokenizer.decode(int(next_tokens.item())),
+                            metric=self.metric,
+                            metric_value=forking_metric,
+                            is_forking_token=False,
+                            part_of_response=True
+                        )
 
-                    # Append token
-                    self.input_ids = torch.cat([self.input_ids, next_tokens], dim=-1)
+                    else:
+                        metric_value = step_metric.detach().to(torch.float32).squeeze().cpu().item()
 
-                    is_forking = metric_value >= self.metric_threshold
+                        is_forking = metric_value >= self.metric_threshold
 
-                    if is_forking:
-                        self.forking_depth += 1
+                        # Forking tokens get their own node
+                        if is_forking:
+                            self.forking_depth += 1
 
-                    token = Token(
-                        token_id=next_tokens.item(),
-                        value=self.tokenizer.decode(int(next_tokens.item())),
-                        metric=self.metric,
-                        metric_value=metric_value,
-                        is_forking_token=(metric_value >= self.metric_threshold),
-                        part_of_response=True
-                    )
+                            token = Token(
+                                token_id=-1,
+                                value='',
+                                metric=self.metric,
+                                metric_value=metric_value,
+                                is_forking_token=is_forking,
+                                part_of_response=False
+                            )
+                            self.curr_token.add_next_token(token)
+                            token.add_prev_token(self.curr_token)
+                            self.curr_token = token
 
+                        else:
+                            token = Token(
+                                token_id=next_tokens.item(),
+                                value=self.tokenizer.decode(int(next_tokens.item())),
+                                metric=self.metric,
+                                metric_value=metric_value,
+                                is_forking_token=is_forking,
+                                part_of_response=True
+                            )
+
+
+                        # Create the token after
+                        if is_forking:
+                            token = Token(
+                                token_id=next_tokens.item(),
+                                value=self.tokenizer.decode(int(next_tokens.item())),
+                                metric=self.metric,
+                                metric_value=metric_value,
+                                is_forking_token=False,
+                                part_of_response=True
+                            )
+
+                    # Move to the next token
                     self.curr_token.add_next_token(token)
                     token.add_prev_token(self.curr_token)
                     self.curr_token = token
 
+                    # Append token
+                    self.input_ids = torch.cat([self.input_ids, next_tokens], dim=-1)
+
                     # Stop condition
                     if self.stopping_criteria(self.input_ids, None) or self.input_ids.shape[1] >= self.max_len:
                         backward = True
+
+                    forking_metric = None
 
         print('Done building the full graph')
     
