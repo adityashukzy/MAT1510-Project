@@ -4,7 +4,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --constraint="RTX_4090|RTX_A4500|RTX_A6000"
 #SBATCH --cpus-per-task=8
-#SBATCH --mem=64G
+#SBATCH --mem=30G
 #SBATCH --time=60:00:00
 #SBATCH --output=slurm_logs/experiment_%j.out
 #SBATCH --error=slurm_logs/experiment_%j.err
