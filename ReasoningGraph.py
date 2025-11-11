@@ -21,6 +21,7 @@ class ReasoningGraph():
         self.curr_token = None
         self.first_token = None
         self.forking_depth = 0
+        self.max_paths = 2 ** max_initial_nodes
 
         # So we can create the graph after 
         self.input_ids = None
@@ -230,21 +231,26 @@ class ReasoningGraph():
         forking_metric = None
         used_tokens = None
 
+        # To prevent the exploration going too deep
+        original_metric = self.metric_threshold
+        num_paths = 1
+
         print('')
         print('Starting full graph creation')
 
         backward = True
         with torch.inference_mode():
             # Keep going until it has backtracked all the way
-            while (self.curr_token is not self.first_token) or (self.first_token.is_forking_token and len(self.first_token.next_tokens) < self.branch_per_level):
+            while (self.curr_token is not self.first_token) or (self.first_token.is_forking_token and len(self.first_token.next_tokens) < self.branch_per_level) and (num_paths <= self.max_paths):
                 # Need to change if we're going forward or backward in the search
                 if backward:
                     # Sample and go down this path
-                    if self.curr_token.is_forking_token and len(self.curr_token.next_tokens) < self.branch_per_level:
+                    if self.curr_token.is_forking_token and (len(self.curr_token.next_tokens) < self.branch_per_level) and (num_paths <= self.max_paths):
                         self._remove_KV_cache(model)
                         backward = False
                         forking_metric = self.curr_token.metric_value
                         used_tokens = [token.token_id for token in self.curr_token.next_tokens]
+                        num_paths += 1
                         
                         print(f'Exploring at depth: {self.forking_depth}')
 
@@ -253,6 +259,11 @@ class ReasoningGraph():
                         # Tracking where in the graph
                         if self.curr_token.is_forking_token:
                             self.forking_depth -= 1
+
+                            # Taking the depth reduction off
+                            if (self.forking_depth <= self.max_initial_nodes) and (self.metric_threshold != original_metric):
+                                self.metric_threshold -= 1
+
                         else:
                             # Reduce the length of the tokens
                             new_len = self.input_ids.shape[1] - 1
@@ -287,6 +298,10 @@ class ReasoningGraph():
                         # Forking tokens get their own node
                         if is_forking:
                             self.forking_depth += 1
+
+                            # Adding the depth reduction
+                            if (self.forking_depth > self.max_initial_nodes) and (self.metric_threshold == original_metric):
+                                self.metric_threshold += 1
 
                             token = Token(
                                 token_id=-1,
