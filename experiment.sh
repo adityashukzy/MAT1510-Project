@@ -14,7 +14,7 @@ set -e
 
 # Parse command-line arguments with defaults
 MODEL="Qwen/Qwen3-4B-Thinking-2507"
-DATASET="yentinglin/aime_2025"
+DATASET="HuggingFaceH4/MATH-500"
 PROBLEMS="10"
 NUM_ROLLOUTS=50
 TEMPERATURE=0.6

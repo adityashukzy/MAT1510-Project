@@ -68,13 +68,14 @@ def normalize_math(value):
 
     return float(N(sympify(s)))
 
-def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split='test'):
+def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split='test', **filter_kwargs):
     """Load a subset of problems from the provided dataset.
 
     Args:
         dataset_name: Name of HuggingFace dataset from which to sample problems
         problems: Number of problems to sample (e.g., '10') or range (e.g., '0:10', '10-20')
         split: Dataset split ('train' or 'test')
+        **filter_kwargs: Optional filters to apply (e.g., level=2, level=[1,2])
     """
 
     # Parse problems parameter to detect range or integer
@@ -106,6 +107,28 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
         dataset = load_dataset(dataset_name)
 
     dataset = dataset[split if split in dataset else 'train']
+
+    # Apply filters if provided
+    if filter_kwargs:
+        original_size = len(dataset)
+        for filter_key, filter_value in filter_kwargs.items():
+            # Check if column exists in dataset
+            if filter_key not in dataset.column_names:
+                print(f"Warning: Column '{filter_key}' not found in dataset. Available columns: {dataset.column_names}")
+                continue
+
+            # Support both single values and lists
+            if isinstance(filter_value, list):
+                # Filter for multiple values (OR logic)
+                dataset = dataset.filter(lambda x: x[filter_key] in filter_value)
+            else:
+                # Filter for single value
+                dataset = dataset.filter(lambda x: x[filter_key] == filter_value)
+
+        filtered_size = len(dataset)
+        if filtered_size < original_size:
+            print(f"Applied filters {filter_kwargs}: {original_size} -> {filtered_size} problems")
+
     total_problems = len(dataset)
 
     # Determine indices based on mode
@@ -155,12 +178,19 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
             ground_truth = item['answer']
         else:
             ground_truth = item.get('answer' if 'answer' in item else None)
+        
+        # Find the difficulty key for the problem
+        if dataset_name in ['HuggingFaceH4/MATH-500', 'qwedsacf/competition_math']:
+            level_key = 'level'
+        else:
+            level_key = 'level' if 'level' in item else ('difficulty' if 'difficulty' in item else None)
 
         problems.append({
             'index': idx,
             'question': item.get(question_key),
             'full_answer': item.get(solution_key),
-            'ground_truth': ground_truth
+            'ground_truth': ground_truth,
+            'level': item.get(level_key)
         })
 
     return problems
