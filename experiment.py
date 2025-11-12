@@ -319,12 +319,10 @@ if __name__ == "__main__":
         print("="*60)
 
         # Load problems from dataset
-        print(f"\n\nLoading problems from {args.dataset}...")
         problems = load_problems_from_dataset(
             dataset_name=args.dataset,
             problems=args.problems
         )
-        print(f"Loaded {len(problems)} problems")
 
         # Load tokenizer
         print(f"\n\nLoading tokenizer from {args.model}...")

@@ -87,14 +87,14 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
             raise ValueError(f"Invalid range format: {problems}. Use 'start:end' or 'start-end'")
         problem_start = int(parts[0])
         problem_end = int(parts[1])
-        print(f"Loading problems [{problem_start}:{problem_end}) from {dataset_name}:{split}")
+        print(f"\n\nLoading problems [{problem_start}:{problem_end}) from {dataset_name}:{split}")
     else:
         # Integer mode: "10"
         use_range = False
         num_problems = int(problems)
         problem_start = 0
         problem_end = None
-        print(f"Loading {num_problems} problems from {dataset_name}:{split}")
+        print(f"\n\nLoading {num_problems} problems from {dataset_name}:{split}")
 
     if dataset_name == 'openai/gsm8k':
         dataset = load_dataset(dataset_name, "main")
@@ -205,12 +205,11 @@ def create_zip_archive(experiment_dir, job_name=None):
         # Use default naming: experiment_timestamp.zip
         zip_filename = f"{experiment_path.name}.zip"
 
-    print(f"Creating zip archive: {zip_filename}")
-
     with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for file_path in experiment_path.rglob('*'):
             if file_path.is_file():
                 arcname = file_path.relative_to(experiment_path.parent)
+                print(f"Creating zip archive {zip_filename} at {file_path} for experiment path {experiment_dir}")
                 zipf.write(file_path, arcname)
 
     print(f"Zip archive created successfully: {zip_filename}")

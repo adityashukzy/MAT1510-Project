@@ -166,11 +166,11 @@ if [ $? -eq 0 ]; then
     # Copy zip file to home directory
     echo "Copying results to home directory..."
 
-    # Copy zip file if it exists
-    if ls experiment_*.zip 1> /dev/null 2>&1; then
-        cp experiment_*.zip "$HOME_RESULTS_DIR/"
+    # Copy zip file if it exists (matches both new and old naming patterns)
+    if ls *.zip 1> /dev/null 2>&1; then
+        cp *.zip "$HOME_RESULTS_DIR/"
         echo "Zip file copied to: $HOME_RESULTS_DIR/"
-        ls -lh "$HOME_RESULTS_DIR"/experiment_*.zip
+        ls -lh "$HOME_RESULTS_DIR"/*.zip | tail -1
     else
         echo "Warning: No zip file found. Did --zip_experiments flag work?"
     fi
