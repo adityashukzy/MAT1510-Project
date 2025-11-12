@@ -19,7 +19,7 @@ class Experiment:
         self.results = None
         self.experiment_file = {}
         
-    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature=0.6, top_p=0.95, top_k=20, min_p=0, max_new_tokens=2048, store_probs_logits=False, problems_spec=None, job_name=None):
+    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature=0.6, top_p=0.95, top_k=20, min_p=0, max_new_tokens=2048, store_probs_logits=False, condition_on_final_answer=False, problems_spec=None, job_name=None):
         """Create directory structure for new experiment."""
 
         # Build new experiment config
@@ -37,6 +37,7 @@ class Experiment:
             "min_p": min_p,
             "max_new_tokens": max_new_tokens,
             "store_probs_logits": store_probs_logits,
+            "condition_on_final_answer": condition_on_final_answer,
             "timestamp": self.timestamp
         }
 
@@ -104,12 +105,18 @@ class Experiment:
             top_k=20,
             min_p=0,
             max_new_tokens=2048,
-            store_probs_logits=False
+            store_probs_logits=False,
+            condition_on_final_answer=False
         ):
         """Generate multiple rollouts for a single problem."""
-        
+
         # Format the prompt
-        prompt = f"Answer the following question: {problem['question']}"""
+        prompt = f"Answer the following question: {problem['question']}"
+
+        # Optionally include the final answer in the prompt
+        if condition_on_final_answer and problem.get('ground_truth') is not None:
+            prompt += f" The correct answer is {problem['ground_truth']}."
+
         messages = [
             {
                 "role": "system",
@@ -271,7 +278,8 @@ class Experiment:
                 top_k=self.config["top_k"],
                 min_p=self.config["min_p"],
                 max_new_tokens=self.config["max_new_tokens"],
-                store_probs_logits=self.config["store_probs_logits"]
+                store_probs_logits=self.config["store_probs_logits"],
+                condition_on_final_answer=self.config["condition_on_final_answer"]
             )
 
         with open(self.base_dir / "experiment.json", "w") as f:
@@ -303,9 +311,11 @@ if __name__ == "__main__":
     parser.add_argument("--max_new_tokens", type=int, default=2048, help="Maximum number of new tokens to generate")
     
     parser.add_argument("--store_probs_logits", action="store_true", help="Store full probability distributions and logits (uses more memory)")
-    
+
+    parser.add_argument("--condition_on_final_answer", action="store_true", help="Include the ground truth answer in the prompt to condition on the final answer")
+
     parser.add_argument("--job_name", type=str, default=None, help="Job name for creating unique zip filenames")
-    
+
     parser.add_argument("--zip_experiments", action="store_true", help="Create a zip archive of the experiments folder after completion")
 
     
@@ -328,6 +338,7 @@ if __name__ == "__main__":
         print(f"Min_P: {args.min_p}")
         print(f"Max new tokens: {args.max_new_tokens}")
         print(f"Store probs/logits: {args.store_probs_logits}")
+        print(f"Condition on final answer: {args.condition_on_final_answer}")
         print(f"Zip experiments: {args.zip_experiments}")
         print("="*60)
 
@@ -383,6 +394,7 @@ if __name__ == "__main__":
             min_p=args.min_p,
             max_new_tokens=args.max_new_tokens,
             store_probs_logits=args.store_probs_logits,
+            condition_on_final_answer=args.condition_on_final_answer,
             problems_spec=args.problems,
             job_name=args.job_name
         )

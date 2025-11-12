@@ -20,6 +20,7 @@ NUM_ROLLOUTS=50
 TEMPERATURE=0.6
 MAX_NEW_TOKENS=1024
 STORE_PROBS_LOGITS=false
+CONDITION_ON_FINAL_ANSWER=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -49,6 +50,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --store_probs_logits)
             STORE_PROBS_LOGITS=true
+            shift
+            ;;
+        --condition_on_final_answer)
+            CONDITION_ON_FINAL_ANSWER=true
             shift
             ;;
         *)
@@ -154,6 +159,11 @@ CMD="python -u experiment.py --model \"$MODEL\" --dataset \"$DATASET\" --problem
 # Add store_probs_logits flag if enabled
 if [ "$STORE_PROBS_LOGITS" = true ]; then
     CMD="$CMD --store_probs_logits"
+fi
+
+# Add condition_on_final_answer flag if enabled
+if [ "$CONDITION_ON_FINAL_ANSWER" = true ]; then
+    CMD="$CMD --condition_on_final_answer"
 fi
 
 eval $CMD
