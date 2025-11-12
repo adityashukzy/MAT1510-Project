@@ -115,7 +115,7 @@ class Experiment:
 
         # Optionally include the final answer in the prompt
         if condition_on_final_answer and problem.get('ground_truth') is not None:
-            prompt += f" The correct answer is {problem['ground_truth']}."
+            prompt += f" The expected correct answer is {problem['ground_truth']}."
 
         messages = [
             {
