@@ -19,7 +19,7 @@ class Experiment:
         self.results = None
         self.experiment_file = {}
         
-    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature, top_p, top_k, min_p, max_new_tokens=2048, store_probs_logits=False, problems_spec=None):
+    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature=0.6, top_p=0.95, top_k=20, min_p=0, max_new_tokens=2048, store_probs_logits=False, problems_spec=None):
         """Create directory structure for new experiment."""
 
         # Build new experiment config
@@ -102,7 +102,7 @@ class Experiment:
         """Generate multiple rollouts for a single problem."""
         
         # Format the prompt
-        prompt = "Answer the following question. Please reason step by step, and put your final answer within \boxed{}.\n\nQuestion: {question}".format(question=problem['question'])
+        prompt = f"Answer the following question: {problem['question']}"""
         messages = [
             {
                 "role": "user",
