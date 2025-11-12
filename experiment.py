@@ -19,7 +19,7 @@ class Experiment:
         self.results = None
         self.experiment_file = {}
         
-    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature, max_new_tokens=2048, store_probs_logits=False, problems_spec=None):
+    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature, top_p, top_k, min_p, max_new_tokens=2048, store_probs_logits=False, problems_spec=None):
         """Create directory structure for new experiment."""
 
         # Build new experiment config
@@ -32,6 +32,9 @@ class Experiment:
             "num_problems": len(self.problems),  # Store the actual count
             "num_rollouts": num_rollouts,
             "temperature": temperature,
+            "top_p": top_p,
+            "top_k": top_k,
+            "min_p": min_p,
             "max_new_tokens": max_new_tokens,
             "store_probs_logits": store_probs_logits,
             "timestamp": self.timestamp
@@ -90,13 +93,16 @@ class Experiment:
             problem_idx,
             num_rollouts=16,
             temperature=1.0,
+            top_p=0.95,
+            top_k=20,
+            min_p=0,
             max_new_tokens=2048,
             store_probs_logits=False
         ):
         """Generate multiple rollouts for a single problem."""
         
         # Format the prompt
-        prompt = "Answer the following question: {question}".format(question=problem['question'])
+        prompt = "Answer the following question. Please reason step by step, and put your final answer within \boxed{}.\n\nQuestion: {question}".format(question=problem['question'])
         messages = [
             {
                 "role": "user",
@@ -134,7 +140,10 @@ class Experiment:
                     max_new_tokens=max_new_tokens,
                     do_sample=True,
                     attention_mask=model_inputs["attention_mask"],
-                    temperature=temperature
+                    temperature=temperature,
+                    top_p=top_p,
+                    top_k=top_k,
+                    min_p=min_p
                 )
             
             # Decode output
@@ -245,6 +254,9 @@ class Experiment:
                 problem_idx,
                 num_rollouts=self.config["num_rollouts"],
                 temperature=self.config["temperature"],
+                top_p=self.config["top_p"],
+                top_k=self.config["top_k"],
+                min_p=self.config["min_p"],
                 max_new_tokens=self.config["max_new_tokens"],
                 store_probs_logits=self.config["store_probs_logits"]
             )
@@ -258,25 +270,32 @@ class Experiment:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run reasoning graph experiment")
 
-    parser.add_argument("--model", type=str, required=True,
-                        help="Model name or path (e.g., 'Qwen/Qwen2.5-Math-1.5B-Instruct')")
-    parser.add_argument("--dataset", type=str, required=True,
-                        help="Dataset name (e.g., 'openai/gsm8k')")
-    parser.add_argument("--problems", type=str, default="1",
-                        help="Number of problems to sample (e.g., '10') or range (e.g., '0:10', '10-20')")
-    parser.add_argument("--num_rollouts", type=int, default=1,
-                        help="Number of rollouts per problem")
-    parser.add_argument("--temperature", type=float, default=1.0,
-                        help="Sampling temperature")
-    parser.add_argument("--max_new_tokens", type=int, default=2048,
-                        help="Maximum number of new tokens to generate")
-    parser.add_argument("--store_probs_logits", action="store_true",
-                        help="Store full probability distributions and logits (uses more memory)")
-    parser.add_argument("--job_name", type=str, default=None,
-                        help="Job name for creating unique zip filenames")
-    parser.add_argument("--zip_experiments", action="store_true",
-                        help="Create a zip archive of the experiments folder after completion")
 
+    parser.add_argument("--model", type=str, required=True, help="Model name or path (e.g., 'Qwen/Qwen2.5-Math-1.5B-Instruct')")
+
+    parser.add_argument("--dataset", type=str, required=True, help="Dataset name (e.g., 'openai/gsm8k')")
+
+    parser.add_argument("--problems", type=str, default="1", help="Number of problems to sample (e.g., '10') or range (e.g., '0:10', '10-20')")
+
+    parser.add_argument("--num_rollouts", type=int, default=1, help="Number of rollouts per problem")
+
+    parser.add_argument("--temperature", type=float, default=1.0, help="Sampling temperature")
+
+    parser.add_argument("--top_p", type=float, default=0.95, help="Sampling top_p")
+
+    parser.add_argument("--top_k", type=float, default=20, help="Sampling top_k")
+
+    parser.add_argument("--min_p", type=float, default=0, help="Sampling min_p")
+    
+    parser.add_argument("--max_new_tokens", type=int, default=2048, help="Maximum number of new tokens to generate")
+    
+    parser.add_argument("--store_probs_logits", action="store_true", help="Store full probability distributions and logits (uses more memory)")
+    
+    parser.add_argument("--job_name", type=str, default=None, help="Job name for creating unique zip filenames")
+    
+    parser.add_argument("--zip_experiments", action="store_true", help="Create a zip archive of the experiments folder after completion")
+
+    
     args = parser.parse_args()
 
     try:
@@ -291,6 +310,9 @@ if __name__ == "__main__":
         print(f"Problems: {args.problems}")
         print(f"Number of rollouts: {args.num_rollouts}")
         print(f"Temperature: {args.temperature}")
+        print(f"Top_P: {args.top_p}")
+        print(f"Top_K: {args.top_k}")
+        print(f"Min_P: {args.min_p}")
         print(f"Max new tokens: {args.max_new_tokens}")
         print(f"Store probs/logits: {args.store_probs_logits}")
         print(f"Zip experiments: {args.zip_experiments}")
@@ -345,6 +367,9 @@ if __name__ == "__main__":
             problems=problems,
             num_rollouts=args.num_rollouts,
             temperature=args.temperature,
+            top_p=args.top_p,
+            top_k=args.top_k,
+            min_p=args.min_p,
             max_new_tokens=args.max_new_tokens,
             store_probs_logits=args.store_probs_logits,
             problems_spec=args.problems
