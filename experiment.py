@@ -19,7 +19,7 @@ class Experiment:
         self.results = None
         self.experiment_file = {}
         
-    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature=0.6, top_p=0.95, top_k=20, min_p=0, max_new_tokens=2048, store_probs_logits=False, problems_spec=None):
+    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature=0.6, top_p=0.95, top_k=20, min_p=0, max_new_tokens=2048, store_probs_logits=False, problems_spec=None, job_name=None):
         """Create directory structure for new experiment."""
 
         # Build new experiment config
@@ -39,7 +39,14 @@ class Experiment:
             "store_probs_logits": store_probs_logits,
             "timestamp": self.timestamp
         }
-        self.base_dir = Path("experiments") / f"experiment_{self.timestamp}"
+
+        # Create experiment directory name with optional job name prefix
+        if job_name:
+            dir_name = f"{job_name}_{self.timestamp}"
+        else:
+            dir_name = f"experiment_{self.timestamp}"
+
+        self.base_dir = Path("experiments") / dir_name
         self.base_dir.mkdir(parents=True, exist_ok=True)
         self.results = []
 
@@ -104,6 +111,10 @@ class Experiment:
         # Format the prompt
         prompt = f"Answer the following question: {problem['question']}"""
         messages = [
+            {
+                "role": "system",
+                "content": "Please reason step by step, and put your final answer within \\boxed{}."
+            },
             {
                 "role": "user",
                 "content": prompt,
@@ -370,7 +381,8 @@ if __name__ == "__main__":
             min_p=args.min_p,
             max_new_tokens=args.max_new_tokens,
             store_probs_logits=args.store_probs_logits,
-            problems_spec=args.problems
+            problems_spec=args.problems,
+            job_name=args.job_name
         )
 
         # Conduct experiment

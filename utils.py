@@ -196,8 +196,14 @@ def create_zip_archive(experiment_dir, job_name=None):
         print(f"Directory '{experiment_dir}' does not exist.")
         return None
 
-    # Create zip filename based on job_name if provided, otherwise use experiment folder name
-    if job_name:
+    # Create zip filename based on folder name
+    # If job_name is already in the folder name (e.g., "aime25_1_20251111_010136"), use it directly
+    # Otherwise, if job_name is provided, prepend it to the timestamp
+    if job_name and experiment_path.name.startswith(job_name):
+        # Folder already has job name (e.g., "aime25_1_20251111_010136")
+        zip_filename = f"{experiment_path.name}.zip"
+    elif job_name:
+        # Folder has default naming, prepend job name
         # Extract timestamp from experiment folder name (e.g., "experiment_20251111_010136" -> "20251111_010136")
         timestamp = experiment_path.name.replace("experiment_", "")
         zip_filename = f"{job_name}_{timestamp}.zip"
