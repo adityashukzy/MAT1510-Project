@@ -157,7 +157,7 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
         # Find the question key for the problem
         if dataset_name in ['openai/gsm8k']:
             question_key = 'question'
-        elif dataset_name in ['HuggingFaceH4/MATH-500', 'math-ai/aime25']:
+        elif dataset_name in ['HuggingFaceH4/MATH-500', 'math-ai/aime25', 'HuggingFaceH4/aime_2024']:
             question_key = 'problem'
         else:
             question_key = 'problem' if 'problem' in item else None
@@ -165,7 +165,7 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
         # Find the solution key for the problem
         if dataset_name in ['openai/gsm8k', 'math-ai/aime25']:
             solution_key = 'answer'
-        elif dataset_name in ['HuggingFaceH4/MATH-500']:
+        elif dataset_name in ['HuggingFaceH4/MATH-500', 'HuggingFaceH4/aime_2024']:
             solution_key = 'solution'
         else:
             solution_key = 'solution' if 'solution' in item else None
@@ -174,7 +174,7 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
         if dataset_name in ['openai/gsm8k']:
             gt_match = re.search(r'####\s*(-?\d+(?:\.\d+)?)', item['answer'])
             ground_truth = float(gt_match.group(1)) if gt_match else None
-        elif dataset_name in ['HuggingFaceH4/MATH-500', 'math-ai/aime25']:
+        elif dataset_name in ['HuggingFaceH4/MATH-500', 'math-ai/aime25', 'HuggingFaceH4/aime_2024']:
             ground_truth = item['answer']
         else:
             ground_truth = item.get('answer' if 'answer' in item else None)
