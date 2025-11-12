@@ -131,8 +131,6 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
     for idx in indices:
         item = dataset[idx]
 
-        print(item)
-
         # Find the question key for the problem
         if dataset_name in ['openai/gsm8k']:
             question_key = 'question'
@@ -182,11 +180,12 @@ def visualize_tokens(tokens, entropies):
 
     return HTML(html)
 
-def create_zip_archive(experiment_dir):
+def create_zip_archive(experiment_dir, job_name=None):
     """Create a zip archive of a specific experiment folder.
 
     Args:
         experiment_dir: Path to the specific experiment directory to archive
+        job_name: Optional job name to include in zip filename for uniqueness
 
     Returns:
         Path to the created zip file, or None if directory doesn't exist
@@ -197,8 +196,14 @@ def create_zip_archive(experiment_dir):
         print(f"Directory '{experiment_dir}' does not exist.")
         return None
 
-    # Create zip filename based on the experiment folder name
-    zip_filename = f"{experiment_path.name}.zip"
+    # Create zip filename based on job_name if provided, otherwise use experiment folder name
+    if job_name:
+        # Extract timestamp from experiment folder name (e.g., "experiment_20251111_010136" -> "20251111_010136")
+        timestamp = experiment_path.name.replace("experiment_", "")
+        zip_filename = f"{job_name}_{timestamp}.zip"
+    else:
+        # Use default naming: experiment_timestamp.zip
+        zip_filename = f"{experiment_path.name}.zip"
 
     print(f"Creating zip archive: {zip_filename}")
 

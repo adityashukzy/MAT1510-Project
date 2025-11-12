@@ -19,6 +19,7 @@ PROBLEMS="10"
 NUM_ROLLOUTS=50
 TEMPERATURE=1.0
 MAX_NEW_TOKENS=2048
+STORE_PROBS_LOGITS=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -45,6 +46,10 @@ while [[ $# -gt 0 ]]; do
         --max_new_tokens)
             MAX_NEW_TOKENS="$2"
             shift 2
+            ;;
+        --store_probs_logits)
+            STORE_PROBS_LOGITS=true
+            shift
             ;;
         *)
             echo "Unknown option: $1"
@@ -144,14 +149,14 @@ echo "Starting experiment..."
 echo "=========================================="
 
 # Execute the Python command
-python -u experiment.py \
-  --model "$MODEL" \
-  --dataset "$DATASET" \
-  --problems "$PROBLEMS" \
-  --num_rollouts $NUM_ROLLOUTS \
-  --temperature $TEMPERATURE \
-  --max_new_tokens $MAX_NEW_TOKENS \
-  --zip_experiments
+CMD="python -u experiment.py --model \"$MODEL\" --dataset \"$DATASET\" --problems \"$PROBLEMS\" --num_rollouts $NUM_ROLLOUTS --temperature $TEMPERATURE --max_new_tokens $MAX_NEW_TOKENS --job_name \"$SLURM_JOB_NAME\" --zip_experiments"
+
+# Add store_probs_logits flag if enabled
+if [ "$STORE_PROBS_LOGITS" = true ]; then
+    CMD="$CMD --store_probs_logits"
+fi
+
+eval $CMD
 
 # Check if experiment succeeded
 if [ $? -eq 0 ]; then

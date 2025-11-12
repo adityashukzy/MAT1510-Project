@@ -19,7 +19,7 @@ class Experiment:
         self.results = None
         self.experiment_file = {}
         
-    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature, max_new_tokens=2048):
+    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature, max_new_tokens=2048, store_probs_logits=False, problems_spec=None):
         """Create directory structure for new experiment."""
 
         # Build new experiment config
@@ -28,10 +28,12 @@ class Experiment:
         self.config = {
             "model_name": model_name,
             "dataset_name": dataset_name,
-            "num_problems": len(self.problems),
+            "problems": problems_spec,  # Store the original specification (e.g., "10" or "0:10")
+            "num_problems": len(self.problems),  # Store the actual count
             "num_rollouts": num_rollouts,
             "temperature": temperature,
             "max_new_tokens": max_new_tokens,
+            "store_probs_logits": store_probs_logits,
             "timestamp": self.timestamp
         }
         self.base_dir = Path("experiments") / f"experiment_{self.timestamp}"
@@ -84,11 +86,12 @@ class Experiment:
             self,
             model,
             tokenizer,
-            problem, 
+            problem,
             problem_idx,
             num_rollouts=16,
             temperature=1.0,
-            max_new_tokens=2048
+            max_new_tokens=2048,
+            store_probs_logits=False
         ):
         """Generate multiple rollouts for a single problem."""
         
@@ -156,12 +159,7 @@ class Experiment:
                     # Fall back to string comparison if conversion fails
                     is_correct = str(predicted_answer).strip() == str(problem['ground_truth']).strip()
             # If either is None, is_correct remains False
-            
-            # Convert probability distributions and logits to lists for JSON serialization
-            # These are CPU tensors already from ReasoningGraph
-            probabilities_list = [p.tolist() for p in generator.probabilities]
-            logits_list = [l.tolist() for l in generator.logits]
-            
+
             # Store rollout data with all computed values
             rollout_data = {
                 'rollout_idx': rollout_idx,
@@ -173,10 +171,16 @@ class Experiment:
                 'ground_truth': problem['ground_truth'],
                 'is_correct': is_correct,
                 'entropy_sequence': generator.metric_values.copy(),  # List of scalars
-                'probabilities': probabilities_list,  # List of probability distributions (vocab_size each)
-                'logits': logits_list,  # List of logits (vocab_size each)
                 'num_tokens': len(generator.metric_values)
             }
+
+            # Conditionally store probability distributions and logits if requested
+            # These are CPU tensors already from ReasoningGraph
+            if store_probs_logits:
+                probabilities_list = [p.tolist() for p in generator.probabilities]
+                logits_list = [l.tolist() for l in generator.logits]
+                rollout_data['probabilities'] = probabilities_list  # List of probability distributions (vocab_size each)
+                rollout_data['logits'] = logits_list  # List of logits (vocab_size each)
             
             # Save rollout in self.results
             self._save_rollout(problem_idx, rollout_idx, generator, rollout_data)
@@ -241,7 +245,8 @@ class Experiment:
                 problem_idx,
                 num_rollouts=self.config["num_rollouts"],
                 temperature=self.config["temperature"],
-                max_new_tokens=self.config["max_new_tokens"]
+                max_new_tokens=self.config["max_new_tokens"],
+                store_probs_logits=self.config["store_probs_logits"]
             )
 
         with open(self.base_dir / "experiment.json", "w") as f:
@@ -265,6 +270,10 @@ if __name__ == "__main__":
                         help="Sampling temperature")
     parser.add_argument("--max_new_tokens", type=int, default=2048,
                         help="Maximum number of new tokens to generate")
+    parser.add_argument("--store_probs_logits", action="store_true",
+                        help="Store full probability distributions and logits (uses more memory)")
+    parser.add_argument("--job_name", type=str, default=None,
+                        help="Job name for creating unique zip filenames")
     parser.add_argument("--zip_experiments", action="store_true",
                         help="Create a zip archive of the experiments folder after completion")
 
@@ -283,6 +292,7 @@ if __name__ == "__main__":
         print(f"Number of rollouts: {args.num_rollouts}")
         print(f"Temperature: {args.temperature}")
         print(f"Max new tokens: {args.max_new_tokens}")
+        print(f"Store probs/logits: {args.store_probs_logits}")
         print(f"Zip experiments: {args.zip_experiments}")
         print("="*60)
 
@@ -335,7 +345,9 @@ if __name__ == "__main__":
             problems=problems,
             num_rollouts=args.num_rollouts,
             temperature=args.temperature,
-            max_new_tokens=args.max_new_tokens
+            max_new_tokens=args.max_new_tokens,
+            store_probs_logits=args.store_probs_logits,
+            problems_spec=args.problems
         )
 
         # Conduct experiment
@@ -356,7 +368,7 @@ if __name__ == "__main__":
         # Optionally create zip archive
         if args.zip_experiments:
             print("\n\nCreating zip archive of this experiment...")
-            create_zip_archive(experiment.base_dir)
+            create_zip_archive(experiment.base_dir, job_name=args.job_name)
 
         print("\n\n" + "="*60)
         print("EXPERIMENT COMPLETED SUCCESSFULLY")
