@@ -5,7 +5,7 @@
 #SBATCH --constraint="RTX_4090|RTX_A4500|RTX_A6000"
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=30G
-#SBATCH --time=60:00:00
+#SBATCH --time=120:00:00
 #SBATCH --output=slurm_logs/experiment_%j.out
 #SBATCH --error=slurm_logs/experiment_%j.err
 

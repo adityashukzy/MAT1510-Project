@@ -137,11 +137,6 @@ class Experiment:
             # Create brand-new ReasoningGraph for each rollout
             generator = ReasoningGraph(tokenizer=tokenizer)
 
-            # Log GPU info for first rollout of first problem
-            if problem_idx == 0 and rollout_idx == 0:
-                print(f"\n[GPU Check] Input tensors device: {model_inputs['input_ids'].device}")
-                print(f"[GPU Check] Model device: {model.device}")
-
             # Generate one rollout
             with torch.inference_mode():
                 generated_ids = model.generate(
@@ -166,6 +161,13 @@ class Experiment:
             
             # Extract predicted answer
             predicted_answer = extract_answer(output_text)
+
+            # Log GPU info & generated outputs for first rollout of first problem
+            if problem_idx == 0 and rollout_idx == 0:
+                print(f"\n[GPU Check] Input tensors device: {model_inputs['input_ids'].device}")
+                print(f"\n[GPU Check] Model device: {model.device}")
+                print(f"\n[Sanity Check] Input: {input_text}")
+                print(f"\n[Sanity Check] Output: {output_text}")
 
             # Check correctness with simple comparison
             is_correct = False
