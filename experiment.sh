@@ -13,12 +13,12 @@
 set -e
 
 # Parse command-line arguments with defaults
-MODEL="Qwen/Qwen3-4B-Thinking-2507"
-DATASET="HuggingFaceH4/aime_2024"
-PROBLEMS="10"
-NUM_ROLLOUTS=50
+MODEL="Qwen/Qwen2.5-Math-1.5B-Instruct"
+DATASET="qwedsacf/competition_math"
+PROBLEMS="5"
+NUM_ROLLOUTS=10
 TEMPERATURE=0.6
-MAX_NEW_TOKENS=1024
+MAX_NEW_TOKENS=8192
 STORE_PROBS_LOGITS=false
 CONDITION_ON_FINAL_ANSWER=false
 
