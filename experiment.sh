@@ -14,7 +14,7 @@ set -e
 
 # Parse command-line arguments with defaults
 MODEL="Qwen/Qwen2.5-Math-1.5B-Instruct"
-DATASET="qwedsacf/competition_math"
+DATASET="HuggingFaceH4/aime_2024"
 PROBLEMS="5"
 NUM_ROLLOUTS=10
 TEMPERATURE=0.6
