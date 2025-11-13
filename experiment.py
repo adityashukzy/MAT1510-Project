@@ -311,8 +311,15 @@ if __name__ == "__main__":
 
     parser.add_argument("--zip_experiments", action="store_true", help="Create a zip archive of the experiments folder after completion")
 
-    
+    parser.add_argument("--filter", action="append", nargs=2, metavar=("KEY", "VALUE"), help="Filter dataset by KEY=VALUE (e.g., --filter level 'Level 4' --filter type Geometry). Can be used multiple times.")
+
     args = parser.parse_args()
+
+    # Convert filter arguments to kwargs dictionary
+    filter_kwargs = {}
+    if args.filter:
+        for key, value in args.filter:
+            filter_kwargs[key] = value
 
     try:
         # Import transformers here to avoid loading if not needed
@@ -333,12 +340,15 @@ if __name__ == "__main__":
         print(f"Store probs/logits: {args.store_probs_logits}")
         print(f"Condition on final answer: {args.condition_on_final_answer}")
         print(f"Zip experiments: {args.zip_experiments}")
+        if filter_kwargs:
+            print(f"Dataset filters: {filter_kwargs}")
         print("="*60)
 
         # Load problems from dataset
         problems = load_problems_from_dataset(
             dataset_name=args.dataset,
-            problems=args.problems
+            problems=args.problems,
+            **filter_kwargs
         )
 
         # Load tokenizer
