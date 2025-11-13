@@ -41,6 +41,95 @@ def extract_answer(text):
 
     return None
 
+def extract_ground_truth_from_solution(full_answer: str) -> str | None:
+    """
+    Extract the raw content from \boxed{} in the solution.
+    Handles nested braces like \boxed{2 \text{ euros}}.
+    
+    Args:
+        full_answer: The solution text containing \boxed{answer}
+    
+    Returns:
+        Raw string content inside \boxed{}, or None if not found
+    """
+    if not full_answer:
+        return None
+    
+    # Find the last occurrence of \boxed{ (with or without double backslash)
+    import re
+    
+    # Try both \boxed and \\boxed
+    for pattern in [r'\\boxed\{', r'\boxed\{']:
+        matches = list(re.finditer(pattern, full_answer))
+        if matches:
+            # Use the last match
+            match = matches[-1]
+            start = match.end()  # Position after the opening brace
+            
+            # Count braces to find the matching closing brace
+            brace_count = 1
+            i = start
+            
+            while i < len(full_answer) and brace_count > 0:
+                if full_answer[i] == '{':
+                    brace_count += 1
+                elif full_answer[i] == '}':
+                    brace_count -= 1
+                i += 1
+            
+            if brace_count == 0:
+                return full_answer[start:i-1]
+    
+    return None
+
+
+def verify_answer(ground_truth: str, llm_response: str, float_rounding: int = 6) -> bool:
+    """
+    Verify if LLM response matches ground truth using Math-Verify.
+
+    Uses Math-Verify library to extract and compare mathematical expressions,
+    handling various formats and equivalent representations.
+
+    Args:
+        ground_truth: Raw extracted ground truth from boxed{} (e.g., "\\frac{1}{2}")
+        llm_response: Full LLM response text
+        float_rounding: Decimal precision for float comparisons (default: 6)
+
+    Returns:
+        True if answers match mathematically, False otherwise
+
+    Examples:
+        Ground truth "\\frac{1}{2}" matches response with "\\boxed{0.5}"
+        Ground truth "42" matches response with "\\boxed{42}"
+        Ground truth "\\sqrt{2}" does NOT match "\\boxed{\\sqrt{3}}"
+    """
+    from math_verify import parse, verify, LatexExtractionConfig, ExprExtractionConfig
+
+    if not ground_truth or not llm_response:
+        return False
+
+    try:
+        # Use both LaTeX and expression extraction for flexibility
+        configs = [LatexExtractionConfig(), ExprExtractionConfig()]
+
+        # Parse ground truth - wrap in $ to help LaTeX parsing
+        gold = parse(f"${ground_truth}$", configs)
+
+        # Parse LLM response - extract from full text
+        pred = parse(llm_response, configs)
+
+        # Both must parse successfully
+        if not gold or not pred:
+            return False
+
+        # Verify mathematical equivalence using first parsed element
+        return verify(gold[0], pred[0], float_rounding=float_rounding)
+
+    except Exception:
+        # Fallback: if Math-Verify fails, return False
+        return False
+
+
 def normalize_math(value):
     """Convert mathematical value (number/string/LaTeX) to float.
 
@@ -178,6 +267,10 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
             ground_truth = item['answer']
         else:
             ground_truth = item.get('answer' if 'answer' in item else None)
+
+        # If ground_truth is still None or empty, try extracting from solution using \boxed{}
+        if not ground_truth and solution_key and item.get(solution_key):
+            ground_truth = extract_ground_truth_from_solution(item.get(solution_key))
         
         # Find the difficulty key for the problem
         if dataset_name in ['HuggingFaceH4/MATH-500', 'qwedsacf/competition_math']:

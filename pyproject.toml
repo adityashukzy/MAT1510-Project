@@ -9,6 +9,7 @@ dependencies = [
     "datasets>=4.3.0",
     "imageio>=2.37.0",
     "ipython>=8.18.0",
+    "math-verify>=0.8.0",
     "matplotlib>=3.10.7",
     "numpy>=2.3.3",
     "requests>=2.32.5",

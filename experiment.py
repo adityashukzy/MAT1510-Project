@@ -153,10 +153,10 @@ class Experiment:
                     max_new_tokens=max_new_tokens,
                     do_sample=True,
                     attention_mask=model_inputs["attention_mask"],
-                    temperature=temperature,
-                    top_p=top_p,
-                    top_k=top_k,
-                    min_p=min_p
+                    # temperature=temperature,
+                    # top_p=top_p,
+                    # top_k=top_k,
+                    # min_p=min_p
                 )
             
             # Decode output
@@ -176,18 +176,11 @@ class Experiment:
                 print(f"\n[Sanity Check] Input: {input_text}")
                 print(f"\n[Sanity Check] Output: {output_text}")
 
-            # Check correctness with simple comparison
+            # Check correctness using Math-Verify for robust mathematical comparison
             is_correct = False
-            if predicted_answer is not None and problem.get('ground_truth') is not None:
-                try:
-                    # Try direct numerical comparison
-                    pred_val = float(predicted_answer)
-                    gt_val = float(problem['ground_truth'])
-                    is_correct = abs(pred_val - gt_val) < 1e-6
-                except (ValueError, TypeError):
-                    # Fall back to string comparison if conversion fails
-                    is_correct = str(predicted_answer).strip() == str(problem['ground_truth']).strip()
-            # If either is None, is_correct remains False
+            if problem.get('ground_truth') is not None:
+                # Use verify_answer from utils which handles equivalent mathematical expressions
+                is_correct = verify_answer(problem['ground_truth'], output_text)
 
             # Store rollout data with all computed values
             rollout_data = {
