@@ -82,7 +82,6 @@ def extract_ground_truth_from_solution(full_answer: str) -> str | None:
     
     return None
 
-
 def verify_answer(ground_truth: str, llm_response: str, float_rounding: int = 6) -> bool:
     """
     Verify if LLM response matches ground truth using Math-Verify.
@@ -157,7 +156,7 @@ def normalize_math(value):
 
     return float(N(sympify(s)))
 
-def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split='test', **filter_kwargs):
+def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split='test', sort_by=None, **filter_kwargs):
     """Load a subset of problems from the provided dataset.
 
     Args:
@@ -196,6 +195,10 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
         dataset = load_dataset(dataset_name)
 
     dataset = dataset[split if split in dataset else 'train']
+
+    # Sort (if asked to)
+    if sort_by:
+        dataset = dataset.sort(sort_by)
 
     # Apply filters if provided
     if filter_kwargs:

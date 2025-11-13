@@ -345,11 +345,19 @@ if __name__ == "__main__":
         print("="*60)
 
         # Load problems from dataset
-        problems = load_problems_from_dataset(
-            dataset_name=args.dataset,
-            problems=args.problems,
-            **filter_kwargs
-        )
+        if args.dataset in ['qwedsacf/competition_math']:
+            problems = load_problems_from_dataset(
+                dataset_name=args.dataset,
+                problems=args.problems,
+                sort_by=['level', 'problem'],
+                **filter_kwargs
+            )
+        else:
+            problems = load_problems_from_dataset(
+                dataset_name=args.dataset,
+                problems=args.problems,
+                **filter_kwargs
+            )
 
         # Load tokenizer
         print(f"\n\nLoading tokenizer from {args.model}...")
