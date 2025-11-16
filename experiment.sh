@@ -123,7 +123,7 @@ trap cleanup EXIT
 echo "Cloning repository to scratch..."
 git clone https://github.com/adityashukzy/MAT1510-Project.git
 cd MAT1510-Project
-git checkout backtracking
+git checkout main
 
 # Install UV if not already available
 if ! command -v uv &> /dev/null; then
