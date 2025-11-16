@@ -8,6 +8,8 @@
 #SBATCH --time=120:00:00
 #SBATCH --output=slurm_logs/experiment_%j.out
 #SBATCH --error=slurm_logs/experiment_%j.err
+#SBATCH --mail-user=nicholas.stranges@mail.utoronto.ca
+#SBATCH --mail-type=BEGIN,END,FAIL
 
 # Exit on error
 set -e
@@ -121,7 +123,7 @@ trap cleanup EXIT
 echo "Cloning repository to scratch..."
 git clone https://github.com/adityashukzy/MAT1510-Project.git
 cd MAT1510-Project
-git checkout main
+git checkout backtracking
 
 # Install UV if not already available
 if ! command -v uv &> /dev/null; then
