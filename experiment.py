@@ -202,6 +202,7 @@ class Experiment:
 
             if self.full_graph:
                 generator.build_full_graph(model)
+
             # Conditionally store probability distributions and logits if requested
             # These are CPU tensors already from ReasoningGraph
             if store_probs_logits:
@@ -319,6 +320,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--filter", action="append", nargs=2, metavar=("KEY", "VALUE"), help="Filter dataset by KEY=VALUE (e.g., --filter level 'Level 4' --filter type Geometry). Can be used multiple times.")
 
+    parser.add_argument("--full_graph", type=bool, default=False, help="Generating the full graph with backtracking")
+
     args = parser.parse_args()
 
     # Convert filter arguments to kwargs dictionary
@@ -346,6 +349,7 @@ if __name__ == "__main__":
         print(f"Store probs/logits: {args.store_probs_logits}")
         print(f"Condition on final answer: {args.condition_on_final_answer}")
         print(f"Zip experiments: {args.zip_experiments}")
+        print(f"Generate full graph: {args.full_graph}")
         if filter_kwargs:
             print(f"Dataset filters: {filter_kwargs}")
         print("="*60)
@@ -413,7 +417,8 @@ if __name__ == "__main__":
             store_probs_logits=args.store_probs_logits,
             condition_on_final_answer=args.condition_on_final_answer,
             problems_spec=args.problems,
-            job_name=args.job_name
+            job_name=args.job_name,
+            full_graph=args.full_graph
         )
 
         # Conduct experiment

@@ -21,6 +21,7 @@ TEMPERATURE=0.6
 MAX_NEW_TOKENS=8192
 STORE_PROBS_LOGITS=false
 CONDITION_ON_FINAL_ANSWER=false
+FULL_GRAPH=true
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -120,7 +121,7 @@ trap cleanup EXIT
 echo "Cloning repository to scratch..."
 git clone https://github.com/adityashukzy/MAT1510-Project.git
 cd MAT1510-Project
-git checkout aditya
+git checkout main
 
 # Install UV if not already available
 if ! command -v uv &> /dev/null; then
@@ -154,7 +155,7 @@ echo "Starting experiment..."
 echo "=========================================="
 
 # Execute the Python command
-CMD="python -u experiment.py --model \"$MODEL\" --dataset \"$DATASET\" --problems \"$PROBLEMS\" --num_rollouts $NUM_ROLLOUTS --temperature $TEMPERATURE --max_new_tokens $MAX_NEW_TOKENS --job_name \"$SLURM_JOB_NAME\" --zip_experiments"
+CMD="python -u experiment.py --model \"$MODEL\" --dataset \"$DATASET\" --problems \"$PROBLEMS\" --num_rollouts $NUM_ROLLOUTS --temperature $TEMPERATURE --max_new_tokens $MAX_NEW_TOKENS --job_name \"$SLURM_JOB_NAME\" --zip_experiments --full_graph $FULL_GRAPH"
 
 # Add store_probs_logits flag if enabled
 if [ "$STORE_PROBS_LOGITS" = true ]; then
