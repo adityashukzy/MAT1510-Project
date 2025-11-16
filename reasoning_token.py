@@ -2,6 +2,9 @@ import uuid
 
 # An easy way to save the nodes
 class Token():
+    """
+    An easy way to save the nodes
+    """
     def __init__(self, token_id, value, prev_token=None, next_tokens=None, metric='entropy', metric_value=None, is_forking_token=False, part_of_response=True):
         self.id = str(uuid.uuid4())
         self.token_id = token_id

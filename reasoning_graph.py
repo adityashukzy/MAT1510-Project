@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import json
 from pathlib import Path
-from Token import Token
+from reasoning_token import Token
 
 class ReasoningGraph():
     def __init__(self, tokenizer, metric='entropy', branch_percent=0.2, max_initial_nodes=5, branch_per_level=2):

@@ -5,7 +5,9 @@ from utils import *
 from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
-from ReasoningGraph import ReasoningGraph
+from reasoning_graph import ReasoningGraph
+import argparse
+import gc
 
 class Experiment:
     def __init__(self):
@@ -18,22 +20,36 @@ class Experiment:
         self.full_graph = False
         self.experiment_file = {}
         
-    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature, full_graph=False):
+    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature=0.6, top_p=0.95, top_k=20, min_p=0, max_new_tokens=2048, store_probs_logits=False, condition_on_final_answer=False, problems_spec=None, job_name=None, full_graph=False):
         """Create directory structure for new experiment."""
-        
+
         # Build new experiment config
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.problems = problems
         self.config = {
             "model_name": model_name,
             "dataset_name": dataset_name,
-            "num_problems": len(self.problems),
+            "problems": problems_spec,  # Store the original specification (e.g., "10" or "0:10")
+            "num_problems": len(self.problems),  # Store the actual count
             "num_rollouts": num_rollouts,
             "temperature": temperature,
             "full_graph": full_graph,
+            "top_p": top_p,
+            "top_k": top_k,
+            "min_p": min_p,
+            "max_new_tokens": max_new_tokens,
+            "store_probs_logits": store_probs_logits,
+            "condition_on_final_answer": condition_on_final_answer,
             "timestamp": self.timestamp
         }
-        self.base_dir = Path("experiments") / f"experiment_{self.timestamp}"
+
+        # Create experiment directory name with optional job name prefix
+        if job_name:
+            dir_name = f"{job_name}_{self.timestamp}"
+        else:
+            dir_name = f"experiment_{self.timestamp}"
+
+        self.base_dir = Path("experiments") / dir_name
         self.base_dir.mkdir(parents=True, exist_ok=True)
         self.results = []
         self.full_graph = True
@@ -85,17 +101,31 @@ class Experiment:
             self,
             model,
             tokenizer,
-            problem, 
+            problem,
             problem_idx,
             num_rollouts=16,
             temperature=1.0,
-            max_new_tokens=2048
+            top_p=0.95,
+            top_k=20,
+            min_p=0,
+            max_new_tokens=2048,
+            store_probs_logits=False,
+            condition_on_final_answer=False
         ):
         """Generate multiple rollouts for a single problem."""
-        
+
         # Format the prompt
-        prompt = "Answer the following question: {question}".format(question=problem['question'])
+        prompt = f"Answer the following question: {problem['question']}"
+
+        # Optionally include the final answer in the prompt
+        if condition_on_final_answer and problem.get('ground_truth') is not None:
+            prompt += f" The expected correct answer is {problem['ground_truth']}."
+
         messages = [
+            {
+                "role": "system",
+                "content": "Please reason step by step, and put your final answer within \\boxed{}."
+            },
             {
                 "role": "user",
                 "content": prompt,
@@ -117,7 +147,7 @@ class Experiment:
         for rollout_idx in tqdm(range(num_rollouts), desc=f"Problem {problem['index']}"):
             # Create brand-new ReasoningGraph for each rollout
             generator = ReasoningGraph(tokenizer=tokenizer)
-            
+
             # Generate one rollout
             with torch.inference_mode():
                 generated_ids = model.generate(
@@ -127,7 +157,10 @@ class Experiment:
                     max_new_tokens=max_new_tokens,
                     do_sample=True,
                     attention_mask=model_inputs["attention_mask"],
-                    temperature=temperature
+                    # temperature=temperature,
+                    # top_p=top_p,
+                    # top_k=top_k,
+                    # min_p=min_p
                 )
             
             # Decode output
@@ -139,22 +172,24 @@ class Experiment:
             
             # Extract predicted answer
             predicted_answer = extract_answer(output_text)
-            
-            # Check correctness
+
+            # Log GPU info & generated outputs for first rollout of first problem
+            if problem_idx == 0 and rollout_idx == 0:
+                print(f"\n[GPU Check] Input tensors device: {model_inputs['input_ids'].device}")
+                print(f"\n[GPU Check] Model device: {model.device}")
+                print(f"\n[Sanity Check] Input: {input_text}")
+                print(f"\n[Sanity Check] Output: {output_text}")
+
+            # Check correctness using Math-Verify for robust mathematical comparison
             is_correct = False
-            if predicted_answer is not None and problem['ground_truth'] is not None:
-                # Allow small floating point tolerance
-                is_correct = abs(predicted_answer - problem['ground_truth']) < 1e-6
-            
-            # Convert probability distributions and logits to lists for JSON serialization
-            # These are CPU tensors already from ReasoningGraph
-            probabilities_list = [p.tolist() for p in generator.probabilities]
-            logits_list = [l.tolist() for l in generator.logits]
-            
+            if problem.get('ground_truth') is not None:
+                # Use verify_answer from utils which handles equivalent mathematical expressions
+                is_correct = verify_answer(problem['ground_truth'], output_text)
+
             # Store rollout data with all computed values
             rollout_data = {
                 'rollout_idx': rollout_idx,
-                'dataset_index': problem['index'],  # Store actual GSM8K dataset index
+                'dataset_index': problem['index'],
                 'input_text': input_text,
                 'output_text': output_text,
                 'decoded_tokens': decoded_tokens,
@@ -162,13 +197,18 @@ class Experiment:
                 'ground_truth': problem['ground_truth'],
                 'is_correct': is_correct,
                 'entropy_sequence': generator.metric_values.copy(),  # List of scalars
-                'probabilities': probabilities_list,  # List of probability distributions (vocab_size each)
-                'logits': logits_list,  # List of logits (vocab_size each)
                 'num_tokens': len(generator.metric_values)
             }
 
             if self.full_graph:
                 generator.build_full_graph(model)
+            # Conditionally store probability distributions and logits if requested
+            # These are CPU tensors already from ReasoningGraph
+            if store_probs_logits:
+                probabilities_list = [p.tolist() for p in generator.probabilities]
+                logits_list = [l.tolist() for l in generator.logits]
+                rollout_data['probabilities'] = probabilities_list  # List of probability distributions (vocab_size each)
+                rollout_data['logits'] = logits_list  # List of logits (vocab_size each)
             
             # Save rollout in self.results
             self._save_rollout(problem_idx, rollout_idx, generator, rollout_data)
@@ -231,11 +271,177 @@ class Experiment:
                 tokenizer,
                 problem,
                 problem_idx,
-                num_rollouts=self.config["num_rollouts"], 
-                temperature=self.config["temperature"]
+                num_rollouts=self.config["num_rollouts"],
+                temperature=self.config["temperature"],
+                top_p=self.config["top_p"],
+                top_k=self.config["top_k"],
+                min_p=self.config["min_p"],
+                max_new_tokens=self.config["max_new_tokens"],
+                store_probs_logits=self.config["store_probs_logits"],
+                condition_on_final_answer=self.config["condition_on_final_answer"]
             )
 
         with open(self.base_dir / "experiment.json", "w") as f:
             json.dump(self.experiment_file, f, indent=2)
 
         print("\nExperiment completed! Results saved to:", self.base_dir)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run reasoning graph experiment")
+
+
+    parser.add_argument("--model", type=str, required=True, help="Model name or path (e.g., 'Qwen/Qwen2.5-Math-1.5B-Instruct')")
+
+    parser.add_argument("--dataset", type=str, required=True, help="Dataset name (e.g., 'openai/gsm8k')")
+
+    parser.add_argument("--problems", type=str, default="1", help="Number of problems to sample (e.g., '10') or range (e.g., '0:10', '10-20')")
+
+    parser.add_argument("--num_rollouts", type=int, default=1, help="Number of rollouts per problem")
+
+    parser.add_argument("--temperature", type=float, default=1.0, help="Sampling temperature")
+
+    parser.add_argument("--top_p", type=float, default=0.95, help="Sampling top_p")
+
+    parser.add_argument("--top_k", type=float, default=20, help="Sampling top_k")
+
+    parser.add_argument("--min_p", type=float, default=0, help="Sampling min_p")
+    
+    parser.add_argument("--max_new_tokens", type=int, default=2048, help="Maximum number of new tokens to generate")
+    
+    parser.add_argument("--store_probs_logits", action="store_true", help="Store full probability distributions and logits (uses more memory)")
+
+    parser.add_argument("--condition_on_final_answer", action="store_true", help="Include the ground truth answer in the prompt to condition on the final answer")
+
+    parser.add_argument("--job_name", type=str, default=None, help="Job name for creating unique zip filenames")
+
+    parser.add_argument("--zip_experiments", action="store_true", help="Create a zip archive of the experiments folder after completion")
+
+    parser.add_argument("--filter", action="append", nargs=2, metavar=("KEY", "VALUE"), help="Filter dataset by KEY=VALUE (e.g., --filter level 'Level 4' --filter type Geometry). Can be used multiple times.")
+
+    args = parser.parse_args()
+
+    # Convert filter arguments to kwargs dictionary
+    filter_kwargs = {}
+    if args.filter:
+        for key, value in args.filter:
+            filter_kwargs[key] = value
+
+    try:
+        # Import transformers here to avoid loading if not needed
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
+        print("="*60)
+        print("EXPERIMENT CONFIGURATION")
+        print("="*60)
+        print(f"Model: {args.model}")
+        print(f"Dataset: {args.dataset}")
+        print(f"Problems: {args.problems}")
+        print(f"Number of rollouts: {args.num_rollouts}")
+        print(f"Temperature: {args.temperature}")
+        print(f"Top_P: {args.top_p}")
+        print(f"Top_K: {args.top_k}")
+        print(f"Min_P: {args.min_p}")
+        print(f"Max new tokens: {args.max_new_tokens}")
+        print(f"Store probs/logits: {args.store_probs_logits}")
+        print(f"Condition on final answer: {args.condition_on_final_answer}")
+        print(f"Zip experiments: {args.zip_experiments}")
+        if filter_kwargs:
+            print(f"Dataset filters: {filter_kwargs}")
+        print("="*60)
+
+        # Load problems from dataset
+        if args.dataset in ['qwedsacf/competition_math']:
+            problems = load_problems_from_dataset(
+                dataset_name=args.dataset,
+                problems=args.problems,
+                sort_by=['level', 'problem'],
+                **filter_kwargs
+            )
+        else:
+            problems = load_problems_from_dataset(
+                dataset_name=args.dataset,
+                problems=args.problems,
+                **filter_kwargs
+            )
+
+        # Load tokenizer
+        print(f"\n\nLoading tokenizer from {args.model}...")
+        tokenizer = AutoTokenizer.from_pretrained(args.model)
+
+        # Load model
+        print(f"\n\nLoading model from {args.model}...")
+        model = AutoModelForCausalLM.from_pretrained(
+            args.model,
+            dtype="auto",
+            device_map="auto"
+        )
+        print("Model loaded successfully")
+
+        # Verify GPU usage
+        print("\n" + "="*60)
+        print("GPU VERIFICATION")
+        print("="*60)
+        print(f"CUDA available: {torch.cuda.is_available()}")
+        if torch.cuda.is_available():
+            print(f"CUDA device count: {torch.cuda.device_count()}")
+            print(f"Current CUDA device: {torch.cuda.current_device()}")
+            print(f"CUDA device name: {torch.cuda.get_device_name(0)}")
+
+        # Check where model is placed
+        if hasattr(model, 'hf_device_map'):
+            print(f"\nModel device map: {model.hf_device_map}")
+
+        # Check model's main device
+        print(f"Model device: {model.device}")
+        print(f"Model dtype: {model.dtype}")
+        print("="*60)
+
+        # Create and setup experiment
+        print("\n\nSetting up experiment...")
+        experiment = Experiment()
+        experiment.setup_new(
+            model_name=args.model,
+            dataset_name=args.dataset,
+            problems=problems,
+            num_rollouts=args.num_rollouts,
+            temperature=args.temperature,
+            top_p=args.top_p,
+            top_k=args.top_k,
+            min_p=args.min_p,
+            max_new_tokens=args.max_new_tokens,
+            store_probs_logits=args.store_probs_logits,
+            condition_on_final_answer=args.condition_on_final_answer,
+            problems_spec=args.problems,
+            job_name=args.job_name
+        )
+
+        # Conduct experiment
+        print("\n\nStarting experiment...")
+        experiment.conduct_experiment(model, tokenizer)
+
+        # Cleanup
+        print("\n\nCleaning up...")
+        del model
+        del tokenizer
+        gc.collect()
+
+        # Release GPU cache if available
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            print("GPU cache cleared")
+
+        # Optionally create zip archive
+        if args.zip_experiments:
+            print("\n\nCreating zip archive of this experiment...")
+            create_zip_archive(experiment.base_dir, job_name=args.job_name)
+
+        print("\n\n" + "="*60)
+        print("EXPERIMENT COMPLETED SUCCESSFULLY")
+        print("="*60)
+
+    except Exception as e:
+        print(f"\n\nError during experiment: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        exit(1)
