@@ -52,7 +52,7 @@ class Experiment:
         self.base_dir = Path("experiments") / dir_name
         self.base_dir.mkdir(parents=True, exist_ok=True)
         self.results = []
-        self.full_graph = True
+        self.full_graph = full_graph
 
         # Save experiment config
         self.experiment_file["config"] = self.config
@@ -320,7 +320,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--filter", action="append", nargs=2, metavar=("KEY", "VALUE"), help="Filter dataset by KEY=VALUE (e.g., --filter level 'Level 4' --filter type Geometry). Can be used multiple times.")
 
-    parser.add_argument("--full_graph", type=bool, default=False, help="Generating the full graph with backtracking")
+    parser.add_argument("--full_graph", action="store_true", help="Generating the full graph with backtracking")
 
     args = parser.parse_args()
 
