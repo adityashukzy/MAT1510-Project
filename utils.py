@@ -128,7 +128,6 @@ def verify_answer(ground_truth: str, llm_response: str, float_rounding: int = 6)
         # Fallback: if Math-Verify fails, return False
         return False
 
-
 def normalize_math(value):
     """Convert mathematical value (number/string/LaTeX) to float.
 
