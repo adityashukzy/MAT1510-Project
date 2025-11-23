@@ -59,6 +59,10 @@ while [[ $# -gt 0 ]]; do
             CONDITION_ON_FINAL_ANSWER=true
             shift
             ;;
+        --full_graph)
+            FULL_GRAPH=true
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
             exit 1
@@ -157,7 +161,7 @@ echo "Starting experiment..."
 echo "=========================================="
 
 # Execute the Python command
-CMD="python -u experiment.py --model \"$MODEL\" --dataset \"$DATASET\" --problems \"$PROBLEMS\" --num_rollouts $NUM_ROLLOUTS --temperature $TEMPERATURE --max_new_tokens $MAX_NEW_TOKENS --job_name \"$SLURM_JOB_NAME\" --zip_experiments --full_graph $FULL_GRAPH"
+CMD="python -u experiment.py --model \"$MODEL\" --dataset \"$DATASET\" --problems \"$PROBLEMS\" --num_rollouts $NUM_ROLLOUTS --temperature $TEMPERATURE --max_new_tokens $MAX_NEW_TOKENS --job_name \"$SLURM_JOB_NAME\" --zip_experiments"
 
 # Add store_probs_logits flag if enabled
 if [ "$STORE_PROBS_LOGITS" = true ]; then
@@ -167,6 +171,10 @@ fi
 # Add condition_on_final_answer flag if enabled
 if [ "$CONDITION_ON_FINAL_ANSWER" = true ]; then
     CMD="$CMD --condition_on_final_answer"
+fi
+
+if [ "$FULL_GRAPH" = true ]; then
+    CMD="$CMD --full_graph"
 fi
 
 eval $CMD
