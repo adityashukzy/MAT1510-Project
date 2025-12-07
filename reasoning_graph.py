@@ -1,4 +1,4 @@
-import torch
+hiddenimport torch
 import numpy as np
 import json
 from pathlib import Path
@@ -10,6 +10,7 @@ class ReasoningGraph():
         self.metric_values = []
         self.probabilities = []
         self.logits = []
+        self.hidden_states = []
 
         self.tokenizer = tokenizer
         
@@ -45,9 +46,13 @@ class ReasoningGraph():
         if hasattr(self, 'logits'):
             for l in self.logits:
                 del l
+        if hasattr(self, 'hidden_states'):
+            for h in self.hidden_states:
+                del h
                 
         self.probabilities = []
         self.logits = []
+        self.hidden_states = []
 
     # Calculate the metric on the token distribution
     def _calculate_metric(self, probs):
@@ -78,7 +83,10 @@ class ReasoningGraph():
         model_inputs = model.prepare_inputs_for_generation(input_ids, **model_kwargs)
 
         # Forward pass
-        outputs = model(**model_inputs, return_dict=True)
+        outputs = model(**model_inputs, return_dict=True, output_hidden_states = True)
+
+        hidden_state = outputs.hidden_states[-1][:, -1, :].detach().cpu()  #output last hidden state
+        self.hidden_states.append(hidden_state)
 
         # Update cache and attention mask automatically
         model_kwargs = model._update_model_kwargs_for_generation(
@@ -119,7 +127,7 @@ class ReasoningGraph():
         # Eval metric
         step_metric = self._calculate_metric(probs)
 
-        return next_tokens, step_metric, probs, next_token_scores, model_kwargs
+        return next_tokens, step_metric, probs, next_token_scores, hidden_state, model_kwargs
     
     # Determine max tokens for generation
     def _determine_max_tokens(self, input_ids, generation_config):
@@ -272,7 +280,7 @@ class ReasoningGraph():
                         self.curr_token = self.curr_token.prev_token
                 else:
                     # Generate a token
-                    next_tokens, step_metric, probs, next_token_scores, self.model_kwargs = self._generate_single_token(model, 
+                    next_tokens, step_metric, probs, next_token_scores, hidden_states, self.model_kwargs = self._generate_single_token(model, 
                                                                                                                         self.input_ids, 
                                                                                                                         self.logits_processor, 
                                                                                                                         self.generation_config,
@@ -391,7 +399,8 @@ class ReasoningGraph():
             save_dir / 'numerical_data.npz',
             metrics=np.array(self.metric_values),
             probabilities=np.stack([p.numpy() for p in self.probabilities]),
-            logits=np.stack([l.numpy() for l in self.logits])
+            logits=np.stack([l.numpy() for l in self.logits]),
+            hidden_states=np.stack([h.numpy() for h in self.hidden_states])
         )
 
         # 2. Save graph structure and metadata
@@ -531,7 +540,7 @@ class ReasoningGraph():
         with torch.inference_mode():
             while input_ids.shape[1] < max_len:
                 # Single token gen
-                next_tokens, step_metric, probs, logits, model_kwargs = self._generate_single_token(model,
+                next_tokens, step_metric, probs, logits, hidden_states, model_kwargs = self._generate_single_token(model,
                                                                     input_ids,
                                                                     logits_processor,
                                                                     generation_config,
@@ -545,6 +554,9 @@ class ReasoningGraph():
 
                 # Saving the logits (pre-softmax)
                 self.logits.append(logits.detach().to(torch.float32).squeeze().cpu())
+
+                #Saving the hidden states
+                self.hidden_states.append(hidden_states.detach().to(torch.float32).squeez().cpu())
 
                 # Append token
                 input_ids = torch.cat([input_ids, next_tokens], dim=-1)

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=aditya
+#SBATCH --job-name=tom1510
 #SBATCH --partition=gpunodes
 #SBATCH --gres=gpu:1
 #SBATCH --constraint="RTX_4090|RTX_A4500|RTX_A6000"
@@ -8,7 +8,7 @@
 #SBATCH --time=120:00:00
 #SBATCH --output=slurm_logs/experiment_%j.out
 #SBATCH --error=slurm_logs/experiment_%j.err
-#SBATCH --mail-user=nicholas.stranges@mail.utoronto.ca
+#SBATCH --mail-user=tom.gribilas@mail.utoronto.ca
 #SBATCH --mail-type=BEGIN,END,FAIL
 
 # Exit on error
@@ -17,8 +17,8 @@ set -e
 # Parse command-line arguments with defaults
 MODEL="Qwen/Qwen2.5-Math-1.5B-Instruct"
 DATASET="HuggingFaceH4/aime_2024"
-PROBLEMS="5"
-NUM_ROLLOUTS=10
+PROBLEMS=0:1
+NUM_ROLLOUTS=25
 TEMPERATURE=0.6
 MAX_NEW_TOKENS=8192
 STORE_PROBS_LOGITS=false
@@ -93,6 +93,7 @@ SCRATCH_DIR="$SCRATCH_BASE/$USER/mat1510_job_${SLURM_JOB_ID}"
 # Create scratch workspace
 echo "Creating scratch workspace at: $SCRATCH_DIR"
 mkdir -p "$SCRATCH_DIR"
+cp -r ~/MAT1510-Project/* "$SCRATCH_DIR/"
 cd "$SCRATCH_DIR"
 
 # Configure cache directories to avoid filling home directory
@@ -120,10 +121,10 @@ cleanup() {
 trap cleanup EXIT
 
 # Clone repository to scratch
-echo "Cloning repository to scratch..."
-git clone https://github.com/adityashukzy/MAT1510-Project.git
-cd MAT1510-Project
-git checkout main
+#echo "Cloning repository to scratch..."
+#git clone https://github.com/adityashukzy/MAT1510-Project.git
+#cd MAT1510-Project
+#git checkout main
 
 # Install UV if not already available
 if ! command -v uv &> /dev/null; then
