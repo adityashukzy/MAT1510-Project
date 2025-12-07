@@ -1,4 +1,4 @@
-hiddenimport torch
+import torch
 import numpy as np
 import json
 from pathlib import Path
@@ -10,7 +10,8 @@ class ReasoningGraph():
         self.metric_values = []
         self.probabilities = []
         self.logits = []
-        self.hidden_states = []
+        self.topk_list = []
+        self.selected_probs = []
 
         self.tokenizer = tokenizer
         
@@ -46,13 +47,10 @@ class ReasoningGraph():
         if hasattr(self, 'logits'):
             for l in self.logits:
                 del l
-        if hasattr(self, 'hidden_states'):
-            for h in self.hidden_states:
-                del h
                 
         self.probabilities = []
         self.logits = []
-        self.hidden_states = []
+        self.selected_probs = []
 
     # Calculate the metric on the token distribution
     def _calculate_metric(self, probs):
@@ -83,10 +81,7 @@ class ReasoningGraph():
         model_inputs = model.prepare_inputs_for_generation(input_ids, **model_kwargs)
 
         # Forward pass
-        outputs = model(**model_inputs, return_dict=True, output_hidden_states = True)
-
-        hidden_state = outputs.hidden_states[-1][:, -1, :].detach().cpu()  #output last hidden state
-        self.hidden_states.append(hidden_state)
+        outputs = model(**model_inputs, return_dict=True)
 
         # Update cache and attention mask automatically
         model_kwargs = model._update_model_kwargs_for_generation(
@@ -127,7 +122,7 @@ class ReasoningGraph():
         # Eval metric
         step_metric = self._calculate_metric(probs)
 
-        return next_tokens, step_metric, probs, next_token_scores, hidden_state, model_kwargs
+        return next_tokens, step_metric, probs, next_token_scores, model_kwargs
     
     # Determine max tokens for generation
     def _determine_max_tokens(self, input_ids, generation_config):
@@ -158,7 +153,7 @@ class ReasoningGraph():
         
     # Turns the nodes into the first graph
     def _build_graph_from_generation(self, output_ids):
-        for output_id, metric_value in zip(output_ids, self.metric_values):
+        for i, (output_id, metric_value) in enumerate(zip(output_ids, self.metric_values)):
 
             is_forking = metric_value >= self.metric_threshold
 
@@ -172,7 +167,9 @@ class ReasoningGraph():
                     metric=self.metric,
                     metric_value=metric_value,
                     is_forking_token=is_forking,
-                    part_of_response=False
+                    part_of_response=False,
+                    topk_probs=self.topk_list[i].tolist(),
+                    selected_prob=self.selected_probs[i]
                 )
 
             else:
@@ -182,7 +179,9 @@ class ReasoningGraph():
                     metric=self.metric,
                     metric_value=metric_value,
                     is_forking_token=is_forking,
-                    part_of_response=True
+                    part_of_response=True,
+                    topk_probs=self.topk_list[i].tolist(),
+                    selected_prob=self.selected_probs[i]
                 )
 
             # if token is our first token, flag it as such
@@ -204,7 +203,9 @@ class ReasoningGraph():
                     metric=self.metric,
                     metric_value=metric_value,
                     is_forking_token=False,
-                    part_of_response=True
+                    part_of_response=True,
+                    topk_probs=self.topk_list[i].tolist(),
+                    selected_prob=self.selected_probs[i]
                 )
                 self.curr_token.add_next_token(token)
                 token.add_prev_token(self.curr_token)
@@ -280,13 +281,18 @@ class ReasoningGraph():
                         self.curr_token = self.curr_token.prev_token
                 else:
                     # Generate a token
-                    next_tokens, step_metric, probs, next_token_scores, hidden_states, self.model_kwargs = self._generate_single_token(model, 
+                    next_tokens, step_metric, probs, next_token_scores, self.model_kwargs = self._generate_single_token(model, 
                                                                                                                         self.input_ids, 
                                                                                                                         self.logits_processor, 
                                                                                                                         self.generation_config,
                                                                                                                         used_tokens=used_tokens,
                                                                                                                         **self.model_kwargs)
-                        
+                    
+                    token_idx = int(next_tokens[0, 0])
+                    selected_prob = float(probs[0, token_idx].detach().cpu())
+                    self.selected_probs.append(selected_prob)
+                    topk = 25
+                    top_probs, _ = torch.topk(probs, topk, dim=-1)    
                     # The branch after a forking token
                     if forking_metric is not None:
                         token = Token(
@@ -295,14 +301,16 @@ class ReasoningGraph():
                             metric=self.metric,
                             metric_value=forking_metric,
                             is_forking_token=False,
-                            part_of_response=True
+                            part_of_response=True,
+                            topk_probs = top_probs.detach().cpu().squeeze().tolist(),
+                            selected_prob=selected_prob
                         )
 
                     else:
                         metric_value = step_metric.detach().to(torch.float32).squeeze().cpu().item()
 
                         is_forking = metric_value >= self.metric_threshold
-
+                        
                         # Forking tokens get their own node
                         if is_forking:
                             self.forking_depth += 1
@@ -317,7 +325,9 @@ class ReasoningGraph():
                                 metric=self.metric,
                                 metric_value=metric_value,
                                 is_forking_token=is_forking,
-                                part_of_response=False
+                                part_of_response=False,
+                                topk_probs=top_probs.detach().cpu().squeeze().tolist(),
+                                selected_prob=selected_prob
                             )
                             self.curr_token.add_next_token(token)
                             token.add_prev_token(self.curr_token)
@@ -330,7 +340,9 @@ class ReasoningGraph():
                                 metric=self.metric,
                                 metric_value=metric_value,
                                 is_forking_token=is_forking,
-                                part_of_response=True
+                                part_of_response=True,
+                                topk_probs=top_probs.detach().cpu().squeeze().tolist(),
+                                selected_prob=selected_prob
                             )
 
 
@@ -342,7 +354,9 @@ class ReasoningGraph():
                                 metric=self.metric,
                                 metric_value=metric_value,
                                 is_forking_token=False,
-                                part_of_response=True
+                                part_of_response=True,
+                                topk_probs=top_probs.detach().cpu().squeeze().tolist(),
+                                selected_prob=selected_prob
                             )
 
                     # Move to the next token
@@ -399,8 +413,7 @@ class ReasoningGraph():
             save_dir / 'numerical_data.npz',
             metrics=np.array(self.metric_values),
             probabilities=np.stack([p.numpy() for p in self.probabilities]),
-            logits=np.stack([l.numpy() for l in self.logits]),
-            hidden_states=np.stack([h.numpy() for h in self.hidden_states])
+            logits=np.stack([l.numpy() for l in self.logits])
         )
 
         # 2. Save graph structure and metadata
@@ -428,7 +441,9 @@ class ReasoningGraph():
                 'next_tokens': next_token_indices,
                 'metric_value': node.metric_value,
                 'is_forking_token': node.is_forking_token,
-                'part_of_response': node.part_of_response
+                'part_of_response': node.part_of_response,
+                'topk_probs': node.topk_probs,
+                'selected_prob': node.selected_prob
             }
 
         # Get sequential token generation path
@@ -505,7 +520,9 @@ class ReasoningGraph():
                 metric=node_data.get('metric', 'entropy'),
                 metric_value=node_data.get('metric_value'),
                 is_forking_token=node_data.get('is_forking_token', False),
-                part_of_response=node_data.get('part_of_response', True)
+                part_of_response=node_data.get('part_of_response', True),
+                topk_probs=node_data.get('topk_probs'),
+                selected_prob=node_data.get('selected_prob')
             )
 
         # Second pass: connect nodes using prev/next relationships
@@ -540,7 +557,7 @@ class ReasoningGraph():
         with torch.inference_mode():
             while input_ids.shape[1] < max_len:
                 # Single token gen
-                next_tokens, step_metric, probs, logits, hidden_states, model_kwargs = self._generate_single_token(model,
+                next_tokens, step_metric, probs, logits, model_kwargs = self._generate_single_token(model,
                                                                     input_ids,
                                                                     logits_processor,
                                                                     generation_config,
@@ -555,8 +572,13 @@ class ReasoningGraph():
                 # Saving the logits (pre-softmax)
                 self.logits.append(logits.detach().to(torch.float32).squeeze().cpu())
 
-                #Saving the hidden states
-                self.hidden_states.append(hidden_states.detach().to(torch.float32).squeez().cpu())
+                token_idx = int(next_tokens[0, 0])
+                selected_prob = float(probs[0, token_idx].detach().cpu())
+                self.selected_probs.append(selected_prob)
+
+                topk = 25
+                top_probs, _ = torch.topk(probs, topk, dim=-1)
+                self.topk_list.append(top_probs.detach().cpu().squeeze())
 
                 # Append token
                 input_ids = torch.cat([input_ids, next_tokens], dim=-1)

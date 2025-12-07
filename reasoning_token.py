@@ -5,7 +5,7 @@ class Token():
     """
     An easy way to save the nodes
     """
-    def __init__(self, token_id, value, prev_token=None, next_tokens=None, metric='entropy', metric_value=None, is_forking_token=False, part_of_response=True):
+    def __init__(self, token_id, value, prev_token=None, next_tokens=None, metric='entropy', metric_value=None, is_forking_token=False, part_of_response=True, topk_probs=None, selected_prob=None):
         self.id = str(uuid.uuid4())
         self.token_id = token_id
         self.value = value
@@ -15,6 +15,8 @@ class Token():
         self.metric_value = metric_value
         self.is_forking_token = is_forking_token
         self.part_of_response = part_of_response
+        self.topk_probs = topk_probs
+        self.selected_prob = selected_prob
 
     def add_prev_token(self, prev_token):
         self.prev_token = prev_token
