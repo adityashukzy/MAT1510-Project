@@ -1,0 +1,337 @@
+\documentclass{article}
+
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{booktabs} 
+\usepackage{float}
+
+\usepackage{hyperref}
+
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+\usepackage[accepted]{icml2025}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\usepackage[textsize=tiny]{todonotes}
+
+\icmltitlerunning{Building Reasoning Trees - Beyond the 80/20 Rule}
+
+\begin{document}
+
+\twocolumn[
+\icmltitle{Building Reasoning Trees - Beyond the 80/20 Rule}
+
+\icmlsetsymbol{equal}{*}
+
+\begin{icmlauthorlist}
+\icmlauthor{Aditya Shukla}{}
+\icmlauthor{Tom Gribilas}{}
+\icmlauthor{Nicholas Stranges}{}
+\end{icmlauthorlist}
+
+\icmlkeywords{Machine Learning, ICML}
+
+\vskip 0.3in
+]
+
+\section{Beyond The 80/20 Rule}
+Wang et al.’s Beyond the 80/20 Rule: High-Entropy Minority Tokens Drive Effective Reinforcement Learning for LLM Reasoning explores the role of high entropy tokens in Chain-of-Thought reasoning (CoT) and Reinforcement Learning with Verifiable Rewards (RLVR). They identify various patterns in token entropies and suggest that the subset of high entropy tokens act as forks in the Large Language Model’s (LLM) reasoning path. They use these observations to inform a modified RLVR approach targeting only high-entropy tokens \cite{wang_beyond_2025}. In our project, we build on these results by investigating entropy distributions stratified by correctness, constructing and analyzing a reasoning tree, and proposing a further modified RLVR approach.
+
+\subsection{Entropy as a Measure of Exploration}
+Wang et al. describe **token-level entropy** during generation as:
+$$H_t := -\sum_{j=1}^{V} p_{t,j} \log p_{t,j}$$
+$$\text{where } (p_{t,1}, \cdots, p_{t,V}) = \pi_{\theta}(\cdot \mid q, o_{<t}) = \text{Softmax}\left(\frac{\mathbf{z}_t}{T}\right).$$
+Here, $\pi_\theta$ denotes an LLM parameterized by $\theta$, $q$ is the input query, and $o_{<t} = (o_1, \dots , o_{t-1})$ represents the previously generated tokens. $V$ is the vocabulary size, $z_t \in \mathbb{R}^V$ denotes the pre-softmax logits at time step $t$, $\mathbf{p_t} \in \mathbb{R}^V$ is the corresponding probability distribution over the vocabulary, and $T \in \mathbb{R}$ is the decoding temperature \cite{wang_beyond_2025}.
+
+With this definition, their preliminary investigation began with investigating token entropy distributions and patterns. Specifically, they task Qwen-3-8B \cite{yang_qwen3_2025} with math, coding, and scientific reasoning problems using Thinking Mode and a decoding temperature of 1. They found a small subset of tokens exhibited high entropies. Somewhat arbitrarily, they defined a bound for high-entropy tokens as the 80th percentile, in accordance with the widespread 80/20 rule (Figure 1a). They observe this bound at 0.672, with over half of tokens having an entropy less than $   10^{-2}$. Tokens below this threshold are considered low-entropy tokens. They also identified that high-entropy tokens often act as logical connectors and model uncertainty, whereas low-entropy tokens exhibit high determinism \cite{wang_beyond_2025}.
+
+By qualitatively comparing the textual context for these two types of tokens, they observe that low-entropy tokens tend to be perfunctory characters that serve to continue or complete the linguistic structure - adding little to no meaning of their own to the running context. Examples of these include mathematical notation, delimiters, parentheses, and word suffixes. On the other hand, they find high-entropy tokens to be dominated by grammatical conjunctions serving as logical connectors, such as \textit{but}, \textit{thus}, \textit{however}, and \textit{suppose}. Figures 1b and 1c depict a word cloud of common high and low entropy tokens. Low-entropy tokens naturally exhibit higher determinism than their high-entropy counterparts, leading the authors to interpret the latter as pivotal decision points that determine the trajectory of reasoning among multiple potential pathways \cite{wang_beyond_2025}.
+
+\begin{figure}[ht]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{Fig1.png}}
+\caption{Generated token entropy patterns \cite{wang_beyond_2025}.}
+\label{Fig1}
+\end{center}
+\vskip -0.2in
+\end{figure}
+
+\subsection{Experiment 1: Modifying Temperature}
+
+Based on their observed behaviour for causing forks in CoT reasoning, Wang et al. refer to high entropy tokens as forking tokens. To test the importance of high-entropy tokens in reasoning processes, they investigated Qwen3-8B’s performance on AIME 2024 and 2025 with varying modifications on decoding temperature. Namely, they define temperature as a function of token entropy as:
+
+{
+\centering
+$\displaystyle
+T'_t =
+\begin{cases}
+  T_{high} & \text{if } H_t > h_{\text{threshold}} \\
+  T_{low}  & \text{otherwise}
+\end{cases}
+$
+\par
+}
+
+They repeated their tests twice, once holding $T_{high}$ constant at 1 while varying $T_{low}$ and once holding $T_{low}$ constant at 1. Figure 2 depicts the results of this experiment \cite{wang_beyond_2025}. 
+
+They find that lowering $T_{high}$ degrades model performance as compared to lowering $T_{low}$. Raising $T_{high}$ was found to substantially improve performance as compared to raising $T_{low}$. This suggests that assigning higher temperatures to forking tokens may benefit the model. Wang et al. claim that this observation aligns with high entropy tokens’ forking behaviour, with high temperature allowing them to explore diverse reasoning paths \cite{wang_beyond_2025}.
+
+\begin{figure}[ht]
+\vskip 0.1in
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{Fig2.png}}
+\caption{Qwen3-8B average AIME 2024 and 2025 Scores when varying $T_{high}$ with $T_{low} = 1$ (red) and when varying $T_{low}$ with $T_{high}=1$ (blue). Lowering $T_{high}$ and raising $T_{low}$ deteriorate model performance \cite{wang_beyond_2025}}
+\label{Fig2}
+\end{center}
+\vskip -0.3in
+\end{figure}
+
+\subsection{Reinforcement Learning with Forking Tokens}
+
+Reinforcement Learning (RL) algorithms in large language model (LLM) post-training have proven to be very effective at improving performance. RL allows models to learn objectives beyond cross entropy loss for next token prediction. Wang et al. focus on using RL to improve model performance on common mathematical reasoning benchmarks. Standard training methods use RLVR, a binary score based on the correctness of the provided answer. One of the first uses of RLVR was to train DeepSeekMath using a RL algorithm called Group Relative Policy Optimization (GRPO) \cite{shao_deepseekmath_2024}. The present paper uses a newer version of the GRPO algorithm called Dynamic sAmpling Policy Optimization (DAPO) that no longer considers Kullback–Leibler divergence between the reference policy and the current policy \cite{wang_beyond_2025}.
+
+Both GRPO and DAPO calculate the objective with respect to groups (denoted G) of completions, allowing each completion to be compared relative to its group. Token level rewards are averaged over each token in each completion in the group. Token level rewards are calculated with two values, the policy ratio and the advantage. The policy ratio is denoted 
+\[
+r_t(\theta)
+=
+\frac{
+    \pi_{\theta}(o_t \mid q,\, o_{<t})
+}{
+    \pi_{\theta_{\mathrm{old}}}(o_t \mid q,\, o_{<t})
+}.
+\]
+
+ and is simply the ratio of the log probability of the chosen token for the current model and the original reference model. The policy ratio determines the magnitude of the update. Advantage is the mechanism that determines the quality of each token, with correct answers given a reward of 1 and incorrect answers given a reward of 0. Rewards are z-score normalized across their group and multiplied by the policy ratio to produce the weighted, normalized advantage. DAPO applies clipping to constrain the size of the update and stabilize training \cite{wang_beyond_2025}.
+
+To target high entropy tokens, Wang et al. modify DAPO to only calculate the weighted, normalized advantage for high entropy tokens. The authors use an indicator function $\mathbb{I}\!\left[ H^{i}_{t} \ge \tau^{B}_{\rho} \right]$
+that evaluates to 1 only if the entropy threshold has been passed. Across three models, Qwen3-8B, Qwen3-14B, and Qwen3-32B, only using high entropy tokens leads to increased performance on five out of six mathematics reasoning benchmarks tested. Furthermore, improvements from isolating for high-entropy tokens scale as model size increases. For example, the 8B model achieved a 0.53\% accuracy increase, whereas the 32B model achieved a 4.10\% accuracy increase. The authors attribute this phenomenon to the inability of smaller models to explore effectively, but a rigorous investigation is needed \cite{wang_beyond_2025}.
+
+\section{Building Reasoning Trees with Forking Tokens}
+
+Wang et al.'s identification of forking tokens in the reasoning process suggests an abstraction of LLM reasoning to a binary tree \cite{wang_beyond_2025}. In this tree, high-entropy forking tokens can act as branches in the reasoning process, allowing the model to explore multiple different paths. This abstraction allows for post-generation analysis, as not all of the tree’s children may lead to the same solution. The tree consists of both correct and incorrect solutions of varying lengths. Conceptually, the nodes of the tree are high entropy tokens and the edges are weighted by the number of tokens between consecutive high entropy tokens.
+
+The tree generation process was implemented by creating a custom generation template using the Hugging Face library. The token generation process is done as a single pass and each token’s entropy is stored. Once a full generation has completed, the top-k highest entropy tokens are stored as nodes and the entropy cutoff is set to the entropy of the kth highest entropy token. The top-k strategy was used instead of the top 20\% strategy in the paper because as the amount of tokens in the first pass increases, the size of the tree generated scales exponentially. Specifically, the size of a balanced tree is roughly $B^D$, where B is the number of branches per node and D is the depth of the tree. The depth of the tree can be considered the number of starting nodes. Reasoning outputs can be thousands of tokens and therefore building a reasoning tree with this many nodes is computationally intractable. For the purposes of this project, branches per node (B) was set to two and the starting depth (D) was set to five.
+
+Once a single pass has been stored in the graph, backtracking from the final token is started. While going backward through the tree, if a node that has unused branches is encountered, generation is continued from that node using all of the previous tokens as model context. While generating the new branch, token entropy is checked to determine if newly generated tokens are high entropy. The backtracking process continues until all possible branches have been created or if the number of created branches surpasses the maximum branch limit. During the implementation of the backtracking procedure, an important limitation of Hugging Face was discovered. The key-value (KV) cache available in Hugging Face is only designed for append operations and does not support pop operation. This drawback meant that the KV cache needed to be rebuilt each time a new branch started. Future work would include the creation of a KV cache that supports the pop operation.
+
+The maximum branch limit was implemented due to a phenomenon observed during tree generation that we call entropy explosion. As the reasoning tree grows in width, branches far from the original path exhibit model degradation. The model’s token probability mass functions spread out, leading to higher variance and entropy and causing many tokens in that branch to be considered high entropy forking tokens. This phenomenon would cause the tree’s generation process to diverge since each branch stemming from these new forking tokens would also exhibit this phenomenon. When excessive high entropy tokens in a single branch was detected, the entropy cutoff was increased to decrease divergence and a maximum branch limit was set to ensure convergence in a specified timeframe. We offer no concrete explanation for the entropy explosion phenomenon but we believe it is related to the model generating tokens from highly unlikely context. An example of a reasoning tree is seen in Figure 3. Further examples of generated trees can be seen in Appendix A. Note these visualizations only show forking nodes and not all of the generated tokens.
+
+\begin{figure}[ht]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{Fig3.png}}
+\caption{Example of a reasoning tree generated from AIME 2024 Q12. Only forking tokens are depicted. A node is coloured green if all of its children yield the correct answer, red if all of its children yield an incorrect answer, and gray if it has both green and red children. The selected token is included in each node. Blank nodes represent placeholder nodes used for backtracking when generating the tree.}
+\label{Fig3}
+\end{center}
+\vskip -0.3in
+\end{figure}
+
+\section{Experiments}
+
+\subsection{Entropy as a Measure of Reasoning Quality}
+
+Several works - including Beyond the 80/20 Rule - explore whether entropy can be interpreted as a measure of the model's exploration of the solution space, uncertainty or confidence, and its perceived difficulty of a given problem \cite{wang_beyond_2025, zhu_uncertainty_2025, scalena_eager_2025}. We extend this to explore whether token-level entropy can also serve as a measure of convergence towards the correct answer in verifiable domains.
+
+To test this hypothesis, we use Qwen-1.5B-Math-Instruct, an instruction-tuned model specifically for mathematical reasoning problems. We choose the AIME 2024 dataset, after finding other datasets to be either too difficult (such as AIME2025, OpenR1Math, and CompetitionMath), or too simple (such as MATH500 and GSM8k) and likely to have cross-contaminated into the training data.
+
+For the 30 problems in AIME2024, we generate 50 rollouts for each at a temperature of $0.6$, yielding 1500 total rollouts. Responses will naturally vary in length, so the entropy sequences are normalized to ensure fair comparison. We accomplished this by linearly interpolating each sequence to a standard 100-point representation, where each point corresponds to a percentile of generation progress (0\% = start, 100\% = end).
+
+We utilize the Math-Verify library on Hugging Face to compare mathematical equivalence between the model's boxed answer and the ground truth in the dataset. We found this to be necessary to enable verification across different but equivalent mathematical representations. This allows us to flag each response and rollout as having reached the correct answer ("correct rollout") or not ("incorrect rollout").
+
+Within this experimental framework, we compute aggregate statistics for the Entropy Trajectory for each of these 1500 rollouts. Paying special attention to the trending mean entropy., we plot it as a function of response generation in Figure 4, and compare this value between correct and incorrect rollouts using a Mann-Whitney U-test. A non-parametric statistical test is opted for due to highly non-normal data, thus violating the assumptions of common statistical tests (Student’s t-test, Welch’s t-test etc.).
+
+\begin{figure}[ht]
+\vskip 0.1in
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{adi_first_figure.png}}
+\caption{Entropy trajectory for correct and incorrect rollouts. A statistically signifcant difference is observed between average entropies.}
+\label{Fig4}
+\end{center}
+\vskip -0.2in
+\end{figure}
+We observe a statistically significant difference between the mean entropy for correct rollouts and incorrect rollouts. Specifically, we observe the entropy to be consistently high at the very beginning (0\%) of generation for both correct and incorrect rollouts, before immediately decreasing and settling into a stable regime, which differs between rollouts by their ultimate correctness. This divergence gains statistical significance at around 15\% and persists through the remainder of the generation.
+
+This finding validates our hypothesis that the model possesses some innate signal of answer correctness in its token generation entropy. However, earlier works have also demonstrated that entropy can capture a model's perceived difficulty of a given problem. Thus, it was possible that our observed divergence actually stemmed from the fact that the model found certain problems harder than others, rather than the eventual correctness or incorrectness of its approach. Thus, we conduct a similar experiment with a single problem. We selectively pick one that the model gets right approximately half the time to nullify any effects stemming from problem difficulty. Comparing across the multiple rollouts generated as a consequence of our backtracking method, we find the same pattern where the rollouts reaching the correct answer had lower mean entropy than those that reached the incorrect answer. Again, this divergence is statistically significant as per the Mann-Whitney U-test.
+
+These findings provide justification for our heuristic-based backtracking approach that leverages the trending mean entropy: a metric that can be computed online during decoding. Concretely, if we find this trending mean entropy to be above a certain threshold (within the regime of incorrectness), then we may prefer to stop decoding, backtracking to the last high-entropy forking token (as this represents a crucial decision made by the model), sample another token from its softmax distribution, and then begin generating a different response, hoping to instead enter into a region of lower mean entropy (within the regime of correctness).
+
+One factor we hypothesize may confound our findings is the effect of including the expected right answer when prompting the model with the problem. We have two contradicting possibilities on the effect of such answer conditioning:
+
+\textbf{Possibility 1:} If the model picks the right approach early on and is progressing towards generating the right answer, knowing what this final answer is supposed to be will likely increase its confidence during generation. This can be likened to when a student that knows the correct answer will be happy to see that their running solution correctly simplifies in a few more steps. In this case, correct answers have lower entropy than incorrect answers, and divergence may be more intense than in the standard case of no conditioning.
+
+\textbf{Possibility 2:} If the model - knowing the expected right answer - falls into a false sense of confidence and fails to explore the solution space sufficiently (i.e. has lower entropy), it may not find the right approach to the problem, and may thus be more likely to reach the incorrect answer. Here, correct rollouts may have higher entropy than the incorrect rollouts by virtue of greater exploration.
+
+Interestingly, we do still observe a statistically significant difference (albeit with a smaller effect) between the trending entropies of correct and incorrect rollouts, but the effect is reversed! The correct rollouts have higher entropy on average throughout generation than incorrect rollouts, suggesting the second possibility may be true. In the standard case with no conditioning, entropy correlates strongly with the model's correctness. In the conditioned case, entropy correlates strongly with the model's exploration. This may be interpreted as a demonstration of the multi-faceted role entropy plays for this and other such models that generate probability distributions over a class of possibilities. However, we must note that the statistical significance is weaker in this case as opposed to the non-conditioned case seen earlier, seen qualitatively in Figure 5.
+
+\begin{figure}[ht]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{adi_ablation_figure.png}}
+\caption{Distributions of mean entropy across correct and incorrect rollouts without answer conditioning (top) and with answer conditioning (bottom).}
+\label{Fig5}
+\end{center}
+\vskip -0.3in
+\end{figure}
+
+Another artifact to be noted across all these experiments is that the inordinately high entropies seen at the very beginning of generation are always higher for correct rollouts vs incorrect rollouts. This, again, may be evidence of the entropy being a marker of the model's ability to "plan and evaluate" solutions before generating even the first token.
+
+\subsection{Impactful Forks and Token-Level Analysis}
+
+While Wang et al. define all tokens in the 80th percentile or higher as forking tokens, it is important to note that most of these tokens do not ultimately impact the model’s correctness \cite{wang_beyond_2025}. This is exhibited by the tree in Figure 3, in which only 1 forking token (the root fork) impacts correctness. The remaining forks affect the exact path taken, but not the ultimate correctness of the final answer. Motivated by this, we define an Impactful Fork as a forking token that directly impacts the correctness of the final output. That is, an impactful fork is a forking token with one child leading to an incorrect answer (red in Figure 3) and one child remaining on the correct path (either green or gray in Figure 3). Gray nodes are considered on the correct path because they have at least one child that achieved the correct answer, meaning it has not yet made a mistake. These impactful forks are the exact token the model makes a mistake. We look for two key insights, whether we can differentiate an impactful fork from a non-impactful fork and if we can determine the correct path within an impactful fork. We hypothesize that these forks can be identified and differentiated from non-impactful forks using distributional information in a similar fashion to how we compare correct and incorrect rollouts. To investigate this, we test Qwen-1.5B-Math-Instruct on AIME problems 0, 9, and 12. These problems were selected to ensure a mixed distribution of correct and incorrect responses (20.92\% correct response rate). 25 rollouts were conducted for each question, and the forking token cutoff is established at the 5th highest entropy value in the initial path. This yields roughly 800 reasoning paths per question.
+
+Figure 6 depicts the distributions of entropy between impactful and non-impactful forks. Refer to Appendix B for additional descriptive statistic distributions and statistical tests. Note that there is a clear difference between impactful and non-impactful forks. Impactful forks tend to have lower entropy than non-impactful forks. Similarly, they tend to have a larger mean of top 25 probabilities (corresponding to a larger probability for a smaller subset of tokens), a higher standard deviation of top 25 probabilities, and a higher maximum probability. Each of these differences exhibits statistically significant results for Mann-Whitney U Test for difference in medians (Entropy: $p = 1.49\times10^{-56}$) and Kolmogorov-Smirnov (KS) Test for difference in sampled distributions (Entropy: $p=1.02\times10^{-59}$). Therefore, there is an observable difference between impactful and non-impactful forks using only naïve distributional information. It is important to note that the observed difference here may be a product of entropy explosion on incorrect paths.
+
+\begin{figure}[ht]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{Fig6.png}}
+\caption{Token entropy distributions of impactful (blue) and non-impactful (gray) forks.}
+\label{Fig6}
+\end{center}
+\vskip -0.3in
+\end{figure}
+
+Next, we investigate the difference between correct and incorrect paths within impactful forks. Figure 7 depicts the distributions of selected token probability between correct and incorrect children. Refer to Appendix C for the distributions of selected token probability index. Note that we can not use the same distributional information here as above because both the correct and incorrect path were sampled from the same distribution. Therefore, we use information specific to the token selected for inference. No difference is observed between the correct and incorrect paths in either metric. Wilcoxon-Signed Rank Tests for difference in medians with paired data and KS Tests identify no significant difference between paths. Therefore, the present methods do not identify a difference between correct and incorrect paths from impactful forks.
+We identify an observable difference between impactful and non-impactful forks using basic distributional information. In a similar method to Wang et al., this can be used to better inform RLVR by targeting impactful forks rather than all forking tokens \cite{wang_beyond_2025}. It is unclear whether this will improve RLVR results but is an avenue for future work. 
+
+\begin{figure}[ht]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{fig7.png}}
+\caption{Distribution of selected token probability for correct children (green) and incorrect children (red). No difference was found between the classes.}
+\label{Fig7}
+\end{center}
+\vskip -0.3in
+\end{figure}
+
+Additionally, automatic identification of impactful forks may be used to better inform reasoning algorithms by providing the model with immediate knowledge that a fork is likely impactful. We do not identify a difference between correct and incorrect paths from impactful forks with naïve selected token probabilities. Future research for both subproblems may include using more nuanced representations to classify differences. For example, one may be able to build a classification model for impactful and non-impactful forks using the raw probability distribution. Additionally, investigating patterns in token distributions following impactful forks may be useful for retroactively identifying the correct path.
+
+\subsection{Length-Adjusted Advantage}
+
+When comparing the performance of DAPO with all tokens with only rewarding the top 20\% high entropy tokens, the authors conclude that there is a correlation between length and mathematics reasoning benchmark performance. The increase in length is visualized in Figure 8 and the authors also mention these results in Table 2 of the paper. In the NeurIPS rebuttal for this paper, the authors show that the frequency of the logical connector words increases with their high entropy targeting methods \cite{wang_beyond_2025}. We pose two simple questions: why does length need to increase for better performance and why is increasing the frequency of logical connector words desirable? Correct answers have different lengths and the desired solution should be as short as possible. Also, why is “wait” needed if the model could solve the problem originally?
+
+\begin{figure}[ht]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{Fig8.png}}
+\caption{Qwen3-32B (a) average AIME score and (b) response length with vanilla DAPO (blue) and forking-token specific DAPO (red). Wang et al.'s adaptation results in higher accuracy and longer response lengths \cite{wang_beyond_2025}}
+\label{Fig8}
+\end{center}
+\vskip -0.3in
+\end{figure}
+
+To address these questions, we propose a length adjusted reward that will reward shorter correct answers the highest. To accomplish this, for correct completions, the completion’s length will be z-score normalized in its correct answer group. This is a measure of how much the length deviates from its group. The sigmoid of the negative of that metric will give a value approaching 1 when the length is much shorter than the rest of the group and approaching 0 when the length is much longer than the rest of the group. A visualization of the length score can be seen in Figure 9. The length reward is added to correct answers meaning wrong answers get a reward of 0, and correct answers get a reward between 1 and 2 exclusive.
+
+\begin{figure}[ht]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{Fig9.png}}
+\caption{Distribution of proposed Advantage function for correct responses. Advantage is maximized asymptotically at 2 by achieving the correct answer with a short response length.}
+\label{Fig9}
+\end{center}
+\vskip -0.3in
+\end{figure}
+
+We hypothesize that generating completions using the tree method produces different reward outcomes than standard generation. This hypothesis stems from the fact that completions from the tree generation are not independent because the completions share the same root context. The data for this experiment was collected using Qwen-1.5B-Math-Instruct on AIME problems 0, 9, and 12 using 960 rollouts per problem with a group size of 32. It is clear that these sampling methods perform differently when comparing Figure 10a and Figure 10b. A KS test between these distributions affirms this observation. It is hard to know what method would lead to an increase in performance without comparing the performance of post-trained models using these methods.
+
+\begin{figure}[ht]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{Fig10.png}}
+\caption{Distribution of advantages using tree sampling (left) and standard sampling (left).}
+\label{Fig10}
+\end{center}
+\vskip -0.3in
+\end{figure}
+
+\bibliography{MAT1510}
+\bibliographystyle{icml2025}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDIX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+\onecolumn
+\section{Additional Examples of Reasoning Trees}
+
+\noindent
+\begin{minipage}[t]{\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{A1.png}
+\end{minipage}
+
+\vspace{0.5em}
+
+\noindent
+\begin{minipage}[t]{\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{A2.png}
+\end{minipage}
+
+\newpage
+
+\noindent
+\begin{minipage}[t]{\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{A3.png}
+\end{minipage}
+
+\vspace{0.5em}
+
+\noindent
+\begin{minipage}[t]{\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{A4.png}
+\end{minipage}
+
+
+\section{Additional Descriptive Statistic Distributions for Impactful and Non-Impactful Forks}
+
+\noindent
+\begin{minipage}[t]{\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{mean.png}
+\end{minipage}
+
+\vspace{0.5em}
+
+\noindent
+\begin{minipage}[t]{\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{std.png}
+\end{minipage}
+
+\newpage
+
+\noindent
+\begin{minipage}[t]{\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{max.png}
+\end{minipage}
+
+
+\section{Distribution of Selected Token Probability Index for Correct and Incorrect Children of Impactful Forks}
+
+\begin{figure}[H]
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{probdist.png}}
+\label{C1}
+\end{center}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\end{document}
