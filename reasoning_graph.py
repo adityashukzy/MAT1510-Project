@@ -3,6 +3,7 @@ import numpy as np
 import json
 from pathlib import Path
 from reasoning_token import Token
+from EvictingCache import EvictingCache
 
 class ReasoningGraph():
     def __init__(self, tokenizer, metric='entropy', branch_percent=0.2, max_initial_nodes=5, branch_per_level=2):
@@ -61,6 +62,16 @@ class ReasoningGraph():
         step_entropy = -(probs * log_probs).sum(dim=-1)
 
         return step_entropy
+    
+    # Sets the cache that has the pop operation
+    def _init_cache(self, model, input_ids, model_kwargs):
+        # Set the cache
+        model_kwargs["past_key_values"] = EvictingCache(config=model.config)
+        model_kwargs["use_cache"] = True
+
+        # Set the initial position
+        model_kwargs = model._get_initial_cache_position(input_ids.shape[1], input_ids.device, model_kwargs)
+        return model_kwargs
     
     # Generate a single token
     def _generate_single_token(self,
@@ -203,23 +214,19 @@ class ReasoningGraph():
                 self.curr_token = token
 
     # Removes the last token from the KV cache
-    def _remove_KV_cache(self, model):
-        with torch.inference_mode():
-            # The attention mask
-            attn = torch.ones_like(self.input_ids, dtype=torch.long)
+    def _remove_KV_cache(self):
+        self.model_kwargs["past_key_values"].pop1()
 
-            # Rebuild model_kwargs
-            self.model_kwargs = {"use_cache": True, "attention_mask": attn}
-            self.model_kwargs = model._get_initial_cache_position(self.input_ids.shape[1], self.input_ids.device, self.model_kwargs)
-            model_inputs = model.prepare_inputs_for_generation(self.input_ids, **self.model_kwargs)
+        # Keep cache_position aligned
+        if "cache_position" in self.model_kwargs:
+            self.model_kwargs["cache_position"] = self.model_kwargs["cache_position"][:-1]
 
-            # Run the model to build the cache back. TODO look into ways we can store then query the old cache. Maybe build our own cache variant
-            outputs = model(**model_inputs, return_dict=True)
-            self.model_kwargs = model._update_model_kwargs_for_generation(outputs, self.model_kwargs, is_encoder_decoder=model.config.is_encoder_decoder)
+        # Keep attention_mask aligned if you maintain one
+        if "attention_mask" in self.model_kwargs and self.model_kwargs["attention_mask"] is not None:
+            self.model_kwargs["attention_mask"] = self.model_kwargs["attention_mask"][:, :-1]
 
-            # Trying to stop the min length being set
-            self.generation_config.min_length = 0
-            self.generation_config.min_new_tokens = 0
+        # Pop token ids
+        self.input_ids = self.input_ids[:, :-1]
 
     # Backtracking to create the full graph structure
     def build_full_graph(self, model):
@@ -246,7 +253,6 @@ class ReasoningGraph():
                 if backward:
                     # Sample and go down this path
                     if self.curr_token.is_forking_token and (len(self.curr_token.next_tokens) < self.branch_per_level) and (num_paths <= self.max_paths):
-                        self._remove_KV_cache(model)
                         backward = False
                         forking_metric = self.curr_token.metric_value
                         used_tokens = [token.token_id for token in self.curr_token.next_tokens]
@@ -266,8 +272,7 @@ class ReasoningGraph():
 
                         else:
                             # Reduce the length of the tokens
-                            new_len = self.input_ids.shape[1] - 1
-                            self.input_ids = self.input_ids[:, :new_len]
+                            self._remove_KV_cache()
 
                         self.curr_token = self.curr_token.prev_token
                 else:
@@ -524,8 +529,6 @@ class ReasoningGraph():
     
     # Making the first pass and collecting the metrics
     def _generate_sequence(self, model, input_ids, logits_processor, stopping_criteria, generation_config, max_len, **model_kwargs):
-        # Extracting all of the correct values
-        model_kwargs = model._get_initial_cache_position(input_ids.shape[1], input_ids.device, model_kwargs)
 
         # First pass
         with torch.inference_mode():
@@ -574,6 +577,9 @@ class ReasoningGraph():
         # Find max length and starting input length
         max_len = self._determine_max_tokens(input_ids, generation_config)
         start_len = input_ids.shape[1]
+
+        # Setup the cache
+        model_kwargs = self._init_cache(model, input_ids, model_kwargs)
 
         # Generate sequence as first pass
         output_ids = self._generate_sequence(model, input_ids, logits_processor, stopping_criteria, generation_config, max_len, **model_kwargs)
