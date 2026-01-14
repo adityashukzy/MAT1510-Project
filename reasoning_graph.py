@@ -215,17 +215,23 @@ class ReasoningGraph():
 
     # Removes the last token from the KV cache
     def _remove_KV_cache(self):
-        self.model_kwargs["past_key_values"].pop1()
+        if self.input_ids is None or self.input_ids.shape[1] <= self.prompt_len:
+            return
 
-        # Keep cache_position aligned
-        if "cache_position" in self.model_kwargs:
-            self.model_kwargs["cache_position"] = self.model_kwargs["cache_position"][:-1]
+        old_len = self.input_ids.shape[1]
 
-        # Keep attention_mask aligned if you maintain one
-        if "attention_mask" in self.model_kwargs and self.model_kwargs["attention_mask"] is not None:
-            self.model_kwargs["attention_mask"] = self.model_kwargs["attention_mask"][:, :-1]
+        pkv = self.model_kwargs.get("past_key_values", None)
+        if pkv is not None:
+            pkv.pop1()
 
-        # Pop token ids
+        cp = self.model_kwargs.get("cache_position", None)
+        if cp is not None and cp.numel() > 0:
+            self.model_kwargs["cache_position"] = cp[:-1]
+
+        am = self.model_kwargs.get("attention_mask", None)
+        if am is not None and am.shape[-1] == old_len:
+            self.model_kwargs["attention_mask"] = am[:, :-1]
+
         self.input_ids = self.input_ids[:, :-1]
 
     # Backtracking to create the full graph structure
@@ -248,7 +254,8 @@ class ReasoningGraph():
         backward = True
         with torch.inference_mode():
             # Keep going until it has backtracked all the way
-            while (self.curr_token is not self.first_token) or (self.first_token.is_forking_token and len(self.first_token.next_tokens) < self.branch_per_level) and (num_paths <= self.max_paths):
+            while ((self.curr_token is not self.first_token) or (self.first_token.is_forking_token and len(self.first_token.next_tokens) < self.branch_per_level)) and (num_paths <= self.max_paths):
+
                 # Need to change if we're going forward or backward in the search
                 if backward:
                     # Sample and go down this path
@@ -577,6 +584,7 @@ class ReasoningGraph():
         # Find max length and starting input length
         max_len = self._determine_max_tokens(input_ids, generation_config)
         start_len = input_ids.shape[1]
+        self.prompt_len = start_len
 
         # Setup the cache
         model_kwargs = self._init_cache(model, input_ids, model_kwargs)
