@@ -248,7 +248,12 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
         if not problem_list:
             raise ValueError(f"No values in the problem list")
         
-        indices = [int(idx) for idx in problem_list] # Cast str -> int
+        indices = []
+
+        # Cast str -> int
+        for problem in problem_list:
+            if problem != '':
+                indices.append(int(problem))
 
     else:
         # Use random sampling mode
