@@ -17,9 +17,10 @@ class Experiment:
         self.config = None
         self.base_dir = None
         self.results = None
+        self.full_graph = False
         self.experiment_file = {}
         
-    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature=0.6, top_p=0.95, top_k=20, min_p=0, max_new_tokens=2048, store_probs_logits=False, condition_on_final_answer=False, problems_spec=None, job_name=None):
+    def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature=0.6, top_p=0.95, top_k=20, min_p=0, max_new_tokens=2048, store_probs_logits=False, condition_on_final_answer=False, problems_spec=None, job_name=None, full_graph=False):
         """Create directory structure for new experiment."""
 
         # Build new experiment config
@@ -32,6 +33,7 @@ class Experiment:
             "num_problems": len(self.problems),  # Store the actual count
             "num_rollouts": num_rollouts,
             "temperature": temperature,
+            "full_graph": full_graph,
             "top_p": top_p,
             "top_k": top_k,
             "min_p": min_p,
@@ -50,6 +52,7 @@ class Experiment:
         self.base_dir = Path("experiments") / dir_name
         self.base_dir.mkdir(parents=True, exist_ok=True)
         self.results = []
+        self.full_graph = full_graph
 
         # Save experiment config
         self.experiment_file["config"] = self.config
@@ -87,6 +90,7 @@ class Experiment:
         self.config = self.experiment_file.get("config", {})
         self.timestamp = self.config.get("timestamp")
         self.results = self.experiment_file.get("results", {})
+        self.full_graph = self.experiment_file.get("full_graph", {})
         self.problems = self.experiment_file.get("problems", {})
 
         print(f"Loaded existing experiment from: {self.base_dir}")
@@ -195,6 +199,9 @@ class Experiment:
                 'entropy_sequence': generator.metric_values.copy(),  # List of scalars
                 'num_tokens': len(generator.metric_values)
             }
+
+            if self.full_graph:
+                generator.build_full_graph(model)
 
             # Conditionally store probability distributions and logits if requested
             # These are CPU tensors already from ReasoningGraph
@@ -313,6 +320,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--filter", action="append", nargs=2, metavar=("KEY", "VALUE"), help="Filter dataset by KEY=VALUE (e.g., --filter level 'Level 4' --filter type Geometry). Can be used multiple times.")
 
+    parser.add_argument("--full_graph", action="store_true", help="Generating the full graph with backtracking")
+
     args = parser.parse_args()
 
     # Convert filter arguments to kwargs dictionary
@@ -340,6 +349,7 @@ if __name__ == "__main__":
         print(f"Store probs/logits: {args.store_probs_logits}")
         print(f"Condition on final answer: {args.condition_on_final_answer}")
         print(f"Zip experiments: {args.zip_experiments}")
+        print(f"Generate full graph: {args.full_graph}")
         if filter_kwargs:
             print(f"Dataset filters: {filter_kwargs}")
         print("="*60)
@@ -407,7 +417,8 @@ if __name__ == "__main__":
             store_probs_logits=args.store_probs_logits,
             condition_on_final_answer=args.condition_on_final_answer,
             problems_spec=args.problems,
-            job_name=args.job_name
+            job_name=args.job_name,
+            full_graph=args.full_graph
         )
 
         # Conduct experiment

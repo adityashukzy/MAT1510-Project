@@ -8,6 +8,8 @@
 #SBATCH --time=120:00:00
 #SBATCH --output=slurm_logs/experiment_%j.out
 #SBATCH --error=slurm_logs/experiment_%j.err
+#SBATCH --mail-user=nicholas.stranges@mail.utoronto.ca
+#SBATCH --mail-type=BEGIN,END,FAIL
 
 # Exit on error
 set -e
@@ -21,6 +23,7 @@ TEMPERATURE=0.6
 MAX_NEW_TOKENS=8192
 STORE_PROBS_LOGITS=false
 CONDITION_ON_FINAL_ANSWER=false
+FULL_GRAPH=true
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -54,6 +57,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --condition_on_final_answer)
             CONDITION_ON_FINAL_ANSWER=true
+            shift
+            ;;
+        --full_graph)
+            FULL_GRAPH=true
             shift
             ;;
         *)
@@ -120,7 +127,7 @@ trap cleanup EXIT
 echo "Cloning repository to scratch..."
 git clone https://github.com/adityashukzy/MAT1510-Project.git
 cd MAT1510-Project
-git checkout aditya
+git checkout main
 
 # Install UV if not already available
 if ! command -v uv &> /dev/null; then
@@ -164,6 +171,10 @@ fi
 # Add condition_on_final_answer flag if enabled
 if [ "$CONDITION_ON_FINAL_ANSWER" = true ]; then
     CMD="$CMD --condition_on_final_answer"
+fi
+
+if [ "$FULL_GRAPH" = true ]; then
+    CMD="$CMD --full_graph"
 fi
 
 eval $CMD

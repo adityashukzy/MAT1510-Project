@@ -164,6 +164,8 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
         split: Dataset split ('train' or 'test')
         **filter_kwargs: Optional filters to apply (e.g., level=2, level=[1,2])
     """
+    use_list = False
+    use_range = False
 
     # Parse problems parameter to detect range or integer
     if ':' in problems or '-' in problems:
@@ -176,9 +178,15 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
         problem_start = int(parts[0])
         problem_end = int(parts[1])
         print(f"\n\nLoading problems [{problem_start}:{problem_end}) from {dataset_name}:{split}")
+
+    # Supporting a specific list of problems
+    elif ',' in problems or ', ' in problems:
+        use_list = True
+        separator = ',' if ',' in problems else ', '
+        problem_list = problems.split(separator)
+
     else:
         # Integer mode: "10"
-        use_range = False
         num_problems = int(problems)
         problem_start = 0
         problem_end = None
@@ -233,6 +241,19 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
             raise ValueError(f"Invalid range: problem_start ({problem_start}) must be less than problem_end ({end})")
         indices = list(range(problem_start, end))
         print(f"Using range [{problem_start}, {end}), total {len(indices)} problems")
+
+    # Selecting certain problems
+    elif use_list:
+        if not problem_list:
+            raise ValueError(f"No values in the problem list")
+        
+        indices = []
+
+        # Cast str -> int
+        for problem in problem_list:
+            if problem != '':
+                indices.append(int(problem))
+
     else:
         # Use random sampling mode
         if num_problems > total_problems:
