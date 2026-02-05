@@ -1,6 +1,7 @@
 # Folder with experiment outputs
 outputs/
-experiments/
+experiments/*
+!experiments/experiment_20251027_231010/
 
 # MacOS files
 .DS_Store
