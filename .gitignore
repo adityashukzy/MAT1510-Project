@@ -1,6 +1,7 @@
 # Folder with experiment outputs
 outputs/
-experiments/
+experiments/*
+!experiments/experiment_20251027_231010/
 
 # MacOS files
 .DS_Store
@@ -212,3 +213,4 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+CLAUDE.MD

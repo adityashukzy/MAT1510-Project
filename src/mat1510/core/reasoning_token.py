@@ -18,6 +18,6 @@ class Token():
 
     def add_prev_token(self, prev_token):
         self.prev_token = prev_token
-    
+
     def add_next_token(self, next_token):
         self.next_tokens.append(next_token)

@@ -160,8 +160,8 @@ echo "=========================================="
 echo "Starting experiment..."
 echo "=========================================="
 
-# Execute the Python command
-CMD="python -u experiment.py --model \"$MODEL\" --dataset \"$DATASET\" --problems \"$PROBLEMS\" --num_rollouts $NUM_ROLLOUTS --temperature $TEMPERATURE --max_new_tokens $MAX_NEW_TOKENS --job_name \"$SLURM_JOB_NAME\" --zip_experiments"
+# Execute the Python command (using the installed package entry point)
+CMD="python -u -m mat1510.experiment.runner --model \"$MODEL\" --dataset \"$DATASET\" --problems \"$PROBLEMS\" --num_rollouts $NUM_ROLLOUTS --temperature $TEMPERATURE --max_new_tokens $MAX_NEW_TOKENS --job_name \"$SLURM_JOB_NAME\" --zip_experiments"
 
 # Add store_probs_logits flag if enabled
 if [ "$STORE_PROBS_LOGITS" = true ]; then

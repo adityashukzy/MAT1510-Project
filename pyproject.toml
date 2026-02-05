@@ -1,7 +1,7 @@
 [project]
 name = "mat1510-project"
 version = "0.1.0"
-description = "Add your description here"
+description = "Reasoning Graph Analysis - Entropy patterns in LLM reasoning"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -18,10 +18,21 @@ dependencies = [
     "sympy>=1.14.0",
     "torch>=2.8.0",
     "transformers>=4.57.0",
+    "tqdm>=4.66.0",
 ]
+
+[project.scripts]
+mat1510-experiment = "mat1510.experiment.runner:main"
 
 [dependency-groups]
 dev = [
     "ipykernel>=6.30.1",
     "ipywidgets>=8.1.7",
 ]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

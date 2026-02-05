@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import json
 from pathlib import Path
-from reasoning_token import Token
+from mat1510.core.reasoning_token import Token
 
 class ReasoningGraph():
     def __init__(self, tokenizer, metric='entropy', branch_percent=0.2, max_initial_nodes=5, branch_per_level=2):
@@ -12,22 +12,22 @@ class ReasoningGraph():
         self.logits = []
 
         self.tokenizer = tokenizer
-        
+
         self.branch_percent = branch_percent
         self.max_initial_nodes = max_initial_nodes
         self.metric_threshold = float('inf') # So none will be above this
         self.branch_per_level = branch_per_level
-        
+
         self.curr_token = None
         self.first_token = None
         self.forking_depth = 0
         self.max_paths = 2 ** max_initial_nodes
 
-        # So we can create the graph after 
+        # So we can create the graph after
         self.input_ids = None
-        self.logits_processor = None 
-        self.stopping_criteria = None 
-        self.generation_config = None 
+        self.logits_processor = None
+        self.stopping_criteria = None
+        self.generation_config = None
         self.max_len = None
         self.model_kwargs = None
 
@@ -37,7 +37,7 @@ class ReasoningGraph():
         """Clear all saved metrics and ensure tensor memory is freed."""
         # Clear lists
         self.metric_values = []
-        
+
         # Clear and free tensor memory
         if hasattr(self, 'probabilities'):
             for p in self.probabilities:
@@ -45,7 +45,7 @@ class ReasoningGraph():
         if hasattr(self, 'logits'):
             for l in self.logits:
                 del l
-                
+
         self.probabilities = []
         self.logits = []
 
@@ -61,7 +61,7 @@ class ReasoningGraph():
         step_entropy = -(probs * log_probs).sum(dim=-1)
 
         return step_entropy
-    
+
     # Generate a single token
     def _generate_single_token(self,
             model,
@@ -107,7 +107,7 @@ class ReasoningGraph():
 
                 # Renormalize probs
                 probs = probs / probs.sum()
-                
+
             # Sample from distribution
             next_tokens = torch.multinomial(probs, num_samples=1)
 
@@ -120,7 +120,7 @@ class ReasoningGraph():
         step_metric = self._calculate_metric(probs)
 
         return next_tokens, step_metric, probs, next_token_scores, model_kwargs
-    
+
     # Determine max tokens for generation
     def _determine_max_tokens(self, input_ids, generation_config):
         # Set max length
@@ -132,7 +132,7 @@ class ReasoningGraph():
             max_len = input_ids.shape[1] + max_new
 
         return max_len
-    
+
     # Determines the metric threshold to flag token as a 'forking token'
     def _find_metric_threshold(self):
         sorted_metrics = sorted(self.metric_values, reverse=True)
@@ -147,7 +147,7 @@ class ReasoningGraph():
             wanted_idx -= 1
 
         self.metric_threshold = sorted_metrics[wanted_idx]
-        
+
     # Turns the nodes into the first graph
     def _build_graph_from_generation(self, output_ids):
         for output_id, metric_value in zip(output_ids, self.metric_values):
@@ -226,7 +226,7 @@ class ReasoningGraph():
         if self.curr_token is None:
             print("Please generate tokens before creating the graph")
             return
-        
+
         # To track entropy from forking nodes
         forking_metric = None
         used_tokens = None
@@ -251,7 +251,7 @@ class ReasoningGraph():
                         forking_metric = self.curr_token.metric_value
                         used_tokens = [token.token_id for token in self.curr_token.next_tokens]
                         num_paths += 1
-                        
+
                         print(f'Exploring at depth: {self.forking_depth}')
 
                     # Move up the graph
@@ -272,13 +272,13 @@ class ReasoningGraph():
                         self.curr_token = self.curr_token.prev_token
                 else:
                     # Generate a token
-                    next_tokens, step_metric, probs, next_token_scores, self.model_kwargs = self._generate_single_token(model, 
-                                                                                                                        self.input_ids, 
-                                                                                                                        self.logits_processor, 
+                    next_tokens, step_metric, probs, next_token_scores, self.model_kwargs = self._generate_single_token(model,
+                                                                                                                        self.input_ids,
+                                                                                                                        self.logits_processor,
                                                                                                                         self.generation_config,
                                                                                                                         used_tokens=used_tokens,
                                                                                                                         **self.model_kwargs)
-                        
+
                     # The branch after a forking token
                     if forking_metric is not None:
                         token = Token(
@@ -353,27 +353,27 @@ class ReasoningGraph():
                     used_tokens = None
 
         print('Done building the full graph')
-    
+
     # Get sequence of tokens ultimately used for response
     def _get_token_sequence(self):
         """Get the sequence of nodes in generation order."""
         if not self.first_token:
             return []
-            
+
         sequence = []
         current = self.first_token
 
         # Using dfs
         stack = []
         stack.append(current)
-        
+
         while len(stack) > 0:
             node = stack.pop()
             sequence.append(node)
-            
+
             for next_token in node.next_tokens:
                 stack.append(next_token)
-        
+
         return sequence
 
     # Save ReasoningGraph & other artifacts as files for experiment tracking
@@ -399,19 +399,19 @@ class ReasoningGraph():
             # Represent tokens by their indices in the sequential token path
             if node is None:
                 return None
-                
+
             # Safely get previous token index
             prev_token_idx = None
             if node.prev_token is not None and node.prev_token in node_to_idx:
                 prev_token_idx = node_to_idx[node.prev_token]
-            
+
             # Safely get next token indices
             next_token_indices = []
             if node.next_tokens:  # This is initialized as [] in Token class
                 for next_token in node.next_tokens:
                     if next_token in node_to_idx:
                         next_token_indices.append(node_to_idx[next_token])
-            
+
             return {
                 'id': node.id,
                 'value': node.value,
@@ -462,10 +462,10 @@ class ReasoningGraph():
     def load(cls, save_dir, tokenizer):
         """Load a reasoning graph from saved files."""
         save_dir = Path(save_dir)
-        
+
         # Load numerical data
         numerical_data = np.load(save_dir / 'numerical_data.npz')
-        
+
         # Load graph structure
         with open(save_dir / 'graph_structure.json', 'r') as f:
             graph_data = json.load(f)
@@ -478,7 +478,7 @@ class ReasoningGraph():
             metric=metadata['metric'],
             branch_percent=metadata['branch_percent'],
         )
-        
+
         # Restore numerical data
         graph.metric_values = numerical_data['metrics'].tolist()
         graph.probabilities = [torch.from_numpy(p) for p in numerical_data['probabilities']]
@@ -507,7 +507,7 @@ class ReasoningGraph():
                 prev_key = str(prev_token_idx)
                 if prev_key in nodes:
                     node.add_prev_token(nodes[prev_key])
-            
+
             next_token_indices = node_data.get('next_tokens', [])
             for next_idx in next_token_indices:
                 next_key = str(next_idx)
@@ -521,7 +521,7 @@ class ReasoningGraph():
             graph.first_token = None
 
         return graph
-    
+
     # Making the first pass and collecting the metrics
     def _generate_sequence(self, model, input_ids, logits_processor, stopping_criteria, generation_config, max_len, **model_kwargs):
         # Extracting all of the correct values
@@ -552,9 +552,9 @@ class ReasoningGraph():
                 # Stop condition
                 if stopping_criteria(input_ids, None):
                     break
-        
+
         return input_ids
-    
+
     # Generate tokens and build the entire reasoning graph (called upstream as custom_generate of model.generate)
     def generate_and_build_graph(
             self,
@@ -569,7 +569,7 @@ class ReasoningGraph():
         # zeroing all of the calculated metrics. Restarting the graphs
         self.zero_metrics()
         self.curr_token = None
-        self.first_token = None 
+        self.first_token = None
 
         # Find max length and starting input length
         max_len = self._determine_max_tokens(input_ids, generation_config)
@@ -586,10 +586,10 @@ class ReasoningGraph():
 
         # Saving for the graph creation
         self.input_ids = output_ids
-        self.logits_processor = logits_processor 
+        self.logits_processor = logits_processor
         self.stopping_criteria = stopping_criteria
         self.generation_config = generation_config
         self.max_len = max_len
         self.model_kwargs = model_kwargs
-        
+
         return output_ids

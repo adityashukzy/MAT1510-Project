@@ -45,19 +45,19 @@ def extract_ground_truth_from_solution(full_answer: str) -> str | None:
     """
     Extract the raw content from \boxed{} in the solution.
     Handles nested braces like \boxed{2 \text{ euros}}.
-    
+
     Args:
         full_answer: The solution text containing \boxed{answer}
-    
+
     Returns:
         Raw string content inside \boxed{}, or None if not found
     """
     if not full_answer:
         return None
-    
+
     # Find the last occurrence of \boxed{ (with or without double backslash)
     import re
-    
+
     # Try both \boxed and \\boxed
     for pattern in [r'\\boxed\{', r'\boxed\{']:
         matches = list(re.finditer(pattern, full_answer))
@@ -65,21 +65,21 @@ def extract_ground_truth_from_solution(full_answer: str) -> str | None:
             # Use the last match
             match = matches[-1]
             start = match.end()  # Position after the opening brace
-            
+
             # Count braces to find the matching closing brace
             brace_count = 1
             i = start
-            
+
             while i < len(full_answer) and brace_count > 0:
                 if full_answer[i] == '{':
                     brace_count += 1
                 elif full_answer[i] == '}':
                     brace_count -= 1
                 i += 1
-            
+
             if brace_count == 0:
                 return full_answer[start:i-1]
-    
+
     return None
 
 def verify_answer(ground_truth: str, llm_response: str, float_rounding: int = 6) -> bool:
@@ -127,7 +127,6 @@ def verify_answer(ground_truth: str, llm_response: str, float_rounding: int = 6)
     except Exception:
         # Fallback: if Math-Verify fails, return False
         return False
-
 
 def normalize_math(value):
     """Convert mathematical value (number/string/LaTeX) to float.
@@ -247,8 +246,13 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
     elif use_list:
         if not problem_list:
             raise ValueError(f"No values in the problem list")
-        
-        indices = [int(idx) for idx in problem_list] # Cast str -> int
+
+        indices = []
+
+        # Cast str -> int
+        for problem in problem_list:
+            if problem != '':
+                indices.append(int(problem))
 
     else:
         # Use random sampling mode
@@ -269,7 +273,7 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
             question_key = 'problem'
         else:
             question_key = 'problem' if 'problem' in item else None
-        
+
         # Find the solution key for the problem
         if dataset_name in ['openai/gsm8k', 'math-ai/aime25']:
             solution_key = 'answer'
@@ -277,7 +281,7 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
             solution_key = 'solution'
         else:
             solution_key = 'solution' if 'solution' in item else None
-        
+
         # Find the ground truth for the problem
         if dataset_name in ['openai/gsm8k']:
             gt_match = re.search(r'####\s*(-?\d+(?:\.\d+)?)', item['answer'])
@@ -290,7 +294,7 @@ def load_problems_from_dataset(dataset_name='openai/gsm8k', problems='10', split
         # If ground_truth is still None or empty, try extracting from solution using \boxed{}
         if not ground_truth and solution_key and item.get(solution_key):
             ground_truth = extract_ground_truth_from_solution(item.get(solution_key))
-        
+
         # Find the difficulty key for the problem
         if dataset_name in ['HuggingFaceH4/MATH-500', 'qwedsacf/competition_math']:
             level_key = 'level'

@@ -1,11 +1,16 @@
 import json
 import torch
 import numpy as np
-from utils import *
+from mat1510.experiment.utils import (
+    extract_answer,
+    verify_answer,
+    load_problems_from_dataset,
+    create_zip_archive,
+)
 from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
-from reasoning_graph import ReasoningGraph
+from mat1510.core.reasoning_graph import ReasoningGraph
 import argparse
 import gc
 
@@ -19,7 +24,7 @@ class Experiment:
         self.results = None
         self.full_graph = False
         self.experiment_file = {}
-        
+
     def setup_new(self, model_name, dataset_name, problems, num_rollouts, temperature=0.6, top_p=0.95, top_k=20, min_p=0, max_new_tokens=2048, store_probs_logits=False, condition_on_final_answer=False, problems_spec=None, job_name=None, full_graph=False):
         """Create directory structure for new experiment."""
 
@@ -59,12 +64,12 @@ class Experiment:
 
         # Add problems too
         self.experiment_file["problems"] = self.problems
-        
+
         with open(self.base_dir / "experiment.json", "w") as f:
             json.dump(self.experiment_file, f, indent=2)
-        
+
         print(f"Setup new experiment at: {self.base_dir} with config:\n{self.config}")
-    
+
     def load_existing(self, experiment_path):
         """Load config from existing experiment."""
 
@@ -141,7 +146,7 @@ class Experiment:
         )
         model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
         input_text = tokenizer.decode(model_inputs['input_ids'][0])
-        
+
         # Generate rollouts
         rollouts = []
         for rollout_idx in tqdm(range(num_rollouts), desc=f"Problem {problem['index']}"):
@@ -162,14 +167,14 @@ class Experiment:
                     # top_k=top_k,
                     # min_p=min_p
                 )
-            
+
             # Decode output
             output_ids = generated_ids[0][len(model_inputs.input_ids[0]):].tolist()
             output_text = tokenizer.decode(output_ids)
-            
+
             # Decoded tokens (per-token strings)
             decoded_tokens = [tokenizer.decode([tid]) for tid in output_ids]
-            
+
             # Extract predicted answer
             predicted_answer = extract_answer(output_text)
 
@@ -210,10 +215,10 @@ class Experiment:
                 logits_list = [l.tolist() for l in generator.logits]
                 rollout_data['probabilities'] = probabilities_list  # List of probability distributions (vocab_size each)
                 rollout_data['logits'] = logits_list  # List of logits (vocab_size each)
-            
+
             # Save rollout in self.results
             self._save_rollout(problem_idx, rollout_idx, generator, rollout_data)
-        
+
         return rollouts
 
     def _save_rollout(self, problem_idx, rollout_idx, reasoning_graph, rollout_data):
@@ -221,17 +226,17 @@ class Experiment:
         try:
             # Get actual dataset index
             dataset_index = rollout_data.get("dataset_index", problem_idx)
-            
+
             # Create directory for this rollout using dataset index
             rollout_dir = self.base_dir / f"problem_{dataset_index}" / f"rollout_{rollout_idx}"
             # Pass decoded token sequence (if available) to avoid reloading tokenizer later
             reasoning_graph.save(rollout_dir, decoded_sequence=rollout_data.get('decoded_tokens'))
-            
+
             # Find or create problem entry in results
             problem_key = f"problem_{problem_idx}"
             if "results" not in self.experiment_file:
                 self.experiment_file["results"] = {}
-            
+
             if problem_key not in self.experiment_file["results"]:
                 # Add problem-level metadata only once
                 self.experiment_file["results"][problem_key] = {
@@ -242,7 +247,7 @@ class Experiment:
                     "ground_truth": rollout_data.get("ground_truth"),
                     "rollouts": []
                 }
-            
+
             # Add rollout data
             rollout = {
                 "rollout_idx": rollout_idx,
@@ -251,21 +256,21 @@ class Experiment:
                 "is_correct": rollout_data.get("is_correct", False),
                 "num_tokens": rollout_data.get("num_tokens", 0)
             }
-            
+
             self.experiment_file["results"][problem_key]["rollouts"].append(rollout)
-            
+
         except Exception as e:
             print(f"Error saving rollout {rollout_idx} for problem {problem_idx}: {str(e)}")
-    
+
     def conduct_experiment(self, model, tokenizer):
         # Initialize results structure if not exists
         if "results" not in self.experiment_file:
             self.experiment_file["results"] = {}
-            
+
         # Run experiments for all problems
         for problem_idx, problem in enumerate(self.problems):
             print(f"\nProblem {problem_idx + 1}/{len(self.problems)}")
-            
+
             # Generate rollouts for this problem (and save result for each)
             self._generate_rollouts(
                 model,
@@ -288,7 +293,7 @@ class Experiment:
         print("\nExperiment completed! Results saved to:", self.base_dir)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Run reasoning graph experiment")
 
 
@@ -307,9 +312,9 @@ if __name__ == "__main__":
     parser.add_argument("--top_k", type=float, default=20, help="Sampling top_k")
 
     parser.add_argument("--min_p", type=float, default=0, help="Sampling min_p")
-    
+
     parser.add_argument("--max_new_tokens", type=int, default=2048, help="Maximum number of new tokens to generate")
-    
+
     parser.add_argument("--store_probs_logits", action="store_true", help="Store full probability distributions and logits (uses more memory)")
 
     parser.add_argument("--condition_on_final_answer", action="store_true", help="Include the ground truth answer in the prompt to condition on the final answer")
@@ -450,3 +455,7 @@ if __name__ == "__main__":
         import traceback
         traceback.print_exc()
         exit(1)
+
+
+if __name__ == "__main__":
+    main()
